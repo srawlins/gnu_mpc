@@ -1,0 +1,5 @@
+Gemfile.lock
+ext/*.o
+ext/*.bundle
+ext/*.log
+ext/Makefile
