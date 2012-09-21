@@ -109,6 +109,57 @@ mpc_rnd_t r_get_default_mpc_rounding_mode()
   return r_get_mpc_rounding_mode (rb_const_get (cMPC, rb_intern ("MPC_RNDNN")));
 }
 
+mpc_rnd_t r_mpc_get_rounding_mode(VALUE rnd)
+{
+  VALUE mode;
+
+  if (MPCRND_P(rnd)) {
+    mode = rb_funcall (rnd, rb_intern("mode"), 0);
+    if (FIX2INT(mode) < 0 || FIX2INT(mode) > 51) {
+      rb_raise(rb_eRangeError, "rounding mode must be one of the rounding mode constants.");
+    }
+  } else {
+    rb_raise(rb_eTypeError, "rounding mode must be one of the rounding mode constants.");
+  }
+
+  switch (FIX2INT (mode)) {
+    case 0:
+      return MPC_RNDNN;
+    case 1:
+      return MPC_RNDZN;
+    case 2:
+      return MPC_RNDUN;
+    case 3:
+      return MPC_RNDDN;
+    case 16:
+      return MPC_RNDNZ;
+    case 17:
+      return MPC_RNDZZ;
+    case 18:
+      return MPC_RNDUZ;
+    case 19:
+      return MPC_RNDDZ;
+    case 32:
+      return MPC_RNDNU;
+    case 33:
+      return MPC_RNDZU;
+    case 34:
+      return MPC_RNDUU;
+    case 35:
+      return MPC_RNDDU;
+    case 48:
+      return MPC_RNDND;
+    case 49:
+      return MPC_RNDZD;
+    case 50:
+      return MPC_RNDUD;
+    case 51:
+      return MPC_RNDDD;
+    default:
+      return MPC_RNDNN;
+  }
+}
+
 void init_mpcrnd()
 {
   cMPC = rb_define_class ("MPC", rb_cNumeric);

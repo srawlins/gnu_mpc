@@ -20,6 +20,7 @@ typedef __mpc_struct MP_COMPLEX;
 #define mpc_get_struct(ruby_var,c_var) { Data_Get_Struct(ruby_var, MP_COMPLEX, c_var); }
 #define mpc_make_struct(ruby_var,c_var) { ruby_var = Data_Make_Struct(cMPC, MP_COMPLEX, 0, r_mpc_free, c_var); }
 #define mpc_make_struct_init(ruby_var,c_var) { mpc_make_struct(ruby_var,c_var); mpc_init (c_var); }
+#define mpc_make_struct_init3(ruby_var,c_var,real_prec,imag_prec) { mpc_make_struct(ruby_var,c_var); mpc_init3 (c_var, real_prec, imag_prec); }
 #define MPC_P(value) (rb_obj_is_instance_of(value,cMPC) == Qtrue)
 #define mpc_set_bignum(var_mpc,var_bignum) {                         \
     VALUE tmp = rb_funcall (                                         \
@@ -55,6 +56,7 @@ extern int mpc_cmp_value(MP_COMPLEX *OP, VALUE arg);
 extern void r_mpc_free(void *ptr);
 extern mpc_rnd_t r_get_mpc_rounding_mode(VALUE rnd);
 extern mpc_rnd_t r_get_default_mpc_rounding_mode();
+extern mpc_rnd_t r_mpc_get_rounding_mode(VALUE rnd);
 extern void init_mpcrnd();
 
 #endif /* _RUBY_MPC_H_ */

@@ -7,6 +7,49 @@
 #include <ruby_mpc.h>
 
 /*
+ * Macros
+ */
+
+#define MPC_SINGLE_FUNCTION(name)                                                          \
+VALUE r_mpc_##name(int argc, VALUE *argv, VALUE self_val)                                  \
+{                                                                                          \
+  MP_COMPLEX *self, *res;                                                                  \
+  VALUE rnd_mode_val;                                                                      \
+  VALUE  res_real_prec_val, res_imag_prec_val;                                             \
+  VALUE res_val;                                                                           \
+                                                                                           \
+  mpfr_prec_t real_prec, imag_prec;                                                        \
+  mpfr_prec_t res_real_prec, res_imag_prec;                                                \
+  mpc_rnd_t rnd_mode;                                                                      \
+                                                                                           \
+  mpc_get_struct(self_val,self);                                                           \
+  real_prec = mpfr_get_prec(mpc_realref(self));                                            \
+  imag_prec = mpfr_get_prec(mpc_imagref(self));                                            \
+                                                                                           \
+  rb_scan_args (argc, argv, "03", &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);  \
+                                                                                           \
+  if (NIL_P (rnd_mode_val)) { rnd_mode = __gmp_default_rounding_mode; }                    \
+  else { rnd_mode = r_mpc_get_rounding_mode(rnd_mode_val); }                               \
+                                                                                           \
+  if (NIL_P (res_real_prec_val) && NIL_P (res_imag_prec_val)) {                            \
+    res_real_prec = real_prec;                                                             \
+    res_imag_prec = imag_prec;                                                             \
+  } else if (NIL_P (res_imag_prec_val)) {                                                  \
+    res_real_prec = FIX2INT( res_real_prec_val);                                           \
+    res_imag_prec = FIX2INT( res_real_prec_val);                                           \
+  } else {                                                                                 \
+    res_real_prec = FIX2INT( res_real_prec_val);                                           \
+    res_imag_prec = FIX2INT( res_imag_prec_val);                                           \
+  }                                                                                        \
+                                                                                           \
+  mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);                      \
+  mpc_##name (res, self, rnd_mode);                                                        \
+                                                                                           \
+  return res_val;                                                                          \
+}
+
+
+/*
  *    Internal helper functions
  ***/
 
@@ -431,6 +474,48 @@ VALUE r_mpc_real(int argc, VALUE *argv, VALUE self)
   return real;
 }
 
+/*
+ * call-seq:
+ *   c.imag
+ *   c.imag(rounding_mode)
+ *
+ * Returns the imaginary part of _c_ as a GMP_F float (an MPFR float, really).
+ */
+VALUE r_mpc_imag(int argc, VALUE *argv, VALUE self)
+{
+  MP_COMPLEX *self_val;
+  MP_FLOAT *imag_val;
+  VALUE rnd_mode, imag;
+  mpfr_prec_t pr=0, pi=0;
+  mpc_rnd_t rnd_mode_val;
+
+  mpc_get_struct (self, self_val);
+
+  rb_scan_args (argc, argv, "01", &rnd_mode);
+  if (NIL_P (rnd_mode)) { rnd_mode_val = r_mpc_default_rounding_mode; }
+  else { rnd_mode_val = r_get_mpc_rounding_mode(rnd_mode); }
+
+  mpf_make_struct (imag, imag_val);
+  mpc_get_prec2 (&pr, &pi, self_val);
+  mpfr_init2 (imag_val, pr);
+  mpc_imag (imag_val, self_val, rnd_mode_val);
+  return imag;
+}
+
+/*********************************************************************
+ *    Basic Arithmetic Functions                                     *
+ *********************************************************************/
+
+/*********************************************************************
+ *    Power and Logarithm Functions                                  *
+ *********************************************************************/
+
+/*********************************************************************
+ *    Trigonometric Functions                                        *
+ *********************************************************************/
+
+MPC_SINGLE_FUNCTION(sin)
+MPC_SINGLE_FUNCTION(cos)
 
 void Init_mpc() {
   cMPC = rb_define_class ("MPC", rb_cNumeric);
@@ -456,7 +541,7 @@ void Init_mpc() {
 
   // Projection and Decomposing Functions
   rb_define_method (cMPC, "real", r_mpc_real, -1);
-  // TODO rb_define_method (cMPC, "imag", r_mpc_imag, 0);
+  rb_define_method (cMPC, "imag", r_mpc_imag, -1);
   // TODO rb_define_method (cMPC, "arg", r_mpc_arg, 0);
   // TODO rb_define_method (cMPC, "proj", r_mpc_proj, 0);
 
@@ -481,8 +566,8 @@ void Init_mpc() {
   // TODO rb_define_method (cMPC, "log", r_mpc_log, 0);
 
   // Trigonometric Functions
-  // TODO rb_define_method (cMPC, "sin", r_mpc_sin, 0);
-  // TODO rb_define_method (cMPC, "cos", r_mpc_cos, 0);
+  rb_define_method (cMPC, "sin", r_mpc_sin, -1);
+  rb_define_method (cMPC, "cos", r_mpc_cos, -1);
   // TODO rb_define_method (cMPC, "sin_cos", r_mpc_sin_cos, 0);
   // TODO rb_define_method (cMPC, "tan", r_mpc_tan, 0);
   // TODO rb_define_method (cMPC, "sinh", r_mpc_sinh, 0);
