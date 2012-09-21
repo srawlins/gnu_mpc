@@ -516,6 +516,7 @@ VALUE r_mpc_imag(int argc, VALUE *argv, VALUE self)
 
 MPC_SINGLE_FUNCTION(sin)
 MPC_SINGLE_FUNCTION(cos)
+MPC_SINGLE_FUNCTION(tan)
 
 void Init_mpc() {
   cMPC = rb_define_class ("MPC", rb_cNumeric);
@@ -568,17 +569,17 @@ void Init_mpc() {
   // Trigonometric Functions
   rb_define_method (cMPC, "sin", r_mpc_sin, -1);
   rb_define_method (cMPC, "cos", r_mpc_cos, -1);
-  // TODO rb_define_method (cMPC, "sin_cos", r_mpc_sin_cos, 0);
-  // TODO rb_define_method (cMPC, "tan", r_mpc_tan, 0);
-  // TODO rb_define_method (cMPC, "sinh", r_mpc_sinh, 0);
-  // TODO rb_define_method (cMPC, "cosh", r_mpc_cosh, 0);
-  // TODO rb_define_method (cMPC, "tanh", r_mpc_tanh, 0);
-  // TODO rb_define_method (cMPC, "asin", r_mpc_asin, 0);
-  // TODO rb_define_method (cMPC, "acos", r_mpc_acos, 0);
-  // TODO rb_define_method (cMPC, "atan", r_mpc_atan, 0);
-  // TODO rb_define_method (cMPC, "asinh", r_mpc_asinh, 0);
-  // TODO rb_define_method (cMPC, "acosh", r_mpc_acosh, 0);
-  // TODO rb_define_method (cMPC, "atanh", r_mpc_atanh, 0);
+  // TODO rb_define_method (cMPC, "sin_cos", r_mpc_sin_cos, -1);
+  rb_define_method (cMPC, "tan", r_mpc_tan, -1);
+  // TODO rb_define_method (cMPC, "sinh", r_mpc_sinh, -1);
+  // TODO rb_define_method (cMPC, "cosh", r_mpc_cosh, -1);
+  // TODO rb_define_method (cMPC, "tanh", r_mpc_tanh, -1);
+  // TODO rb_define_method (cMPC, "asin", r_mpc_asin, -1);
+  // TODO rb_define_method (cMPC, "acos", r_mpc_acos, -1);
+  // TODO rb_define_method (cMPC, "atan", r_mpc_atan, -1);
+  // TODO rb_define_method (cMPC, "asinh", r_mpc_asinh, -1);
+  // TODO rb_define_method (cMPC, "acosh", r_mpc_acosh, -1);
+  // TODO rb_define_method (cMPC, "atanh", r_mpc_atanh, -1);
 
   // Miscellaneous Functions
   // TODO rb_define_method (cMPC, "urandom", r_mpc_urandom, 1);
