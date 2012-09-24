@@ -517,6 +517,8 @@ VALUE r_mpc_imag(int argc, VALUE *argv, VALUE self)
 MPC_SINGLE_FUNCTION(sin)
 MPC_SINGLE_FUNCTION(cos)
 MPC_SINGLE_FUNCTION(tan)
+MPC_SINGLE_FUNCTION(sinh)
+MPC_SINGLE_FUNCTION(cosh)
 
 void Init_mpc() {
   cMPC = rb_define_class ("MPC", rb_cNumeric);
@@ -571,8 +573,8 @@ void Init_mpc() {
   rb_define_method (cMPC, "cos", r_mpc_cos, -1);
   // TODO rb_define_method (cMPC, "sin_cos", r_mpc_sin_cos, -1);
   rb_define_method (cMPC, "tan", r_mpc_tan, -1);
-  // TODO rb_define_method (cMPC, "sinh", r_mpc_sinh, -1);
-  // TODO rb_define_method (cMPC, "cosh", r_mpc_cosh, -1);
+  rb_define_method (cMPC, "sinh", r_mpc_sinh, -1);
+  rb_define_method (cMPC, "cosh", r_mpc_cosh, -1);
   // TODO rb_define_method (cMPC, "tanh", r_mpc_tanh, -1);
   // TODO rb_define_method (cMPC, "asin", r_mpc_asin, -1);
   // TODO rb_define_method (cMPC, "acos", r_mpc_acos, -1);
