@@ -3,3 +3,6 @@ ext/*.o
 ext/*.bundle
 ext/*.log
 ext/Makefile
+manual.aux
+manual.log
+manual.toc

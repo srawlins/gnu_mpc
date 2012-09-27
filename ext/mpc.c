@@ -7,6 +7,16 @@
 #include <ruby_mpc.h>
 
 /*
+ * Document-class: MPC
+ *
+ * GMP Multiple Precision Complex numbers
+ *
+ * Instances of this class can store variables of the type mpc_t. This class
+ * also contains many methods that act as the functions for mpc_t variables,
+ * as well as a few methods that attempt to make this library more Ruby-ish.
+ */
+
+/*
  * Macros
  */
 
@@ -47,7 +57,6 @@ VALUE r_mpc_##name(int argc, VALUE *argv, VALUE self_val)                       
                                                                                            \
   return res_val;                                                                          \
 }
-
 
 /*
  *    Internal helper functions
@@ -514,6 +523,13 @@ VALUE r_mpc_imag(int argc, VALUE *argv, VALUE self)
  *    Trigonometric Functions                                        *
  *********************************************************************/
 
+/*
+ * call-seq:
+ *   z.sin
+ *   z.sin(rounding_mode)
+ *
+ * Returns _sin(z)_, rounded according to `rounding_mode`.
+ */
 MPC_SINGLE_FUNCTION(sin)
 MPC_SINGLE_FUNCTION(cos)
 MPC_SINGLE_FUNCTION(tan)
@@ -521,6 +537,7 @@ MPC_SINGLE_FUNCTION(sinh)
 MPC_SINGLE_FUNCTION(cosh)
 MPC_SINGLE_FUNCTION(tanh)
 MPC_SINGLE_FUNCTION(asin)
+MPC_SINGLE_FUNCTION(acos)
 
 void Init_mpc() {
   cMPC = rb_define_class ("MPC", rb_cNumeric);
@@ -579,7 +596,7 @@ void Init_mpc() {
   rb_define_method (cMPC, "cosh", r_mpc_cosh, -1);
   rb_define_method (cMPC, "tanh", r_mpc_tanh, -1);
   rb_define_method (cMPC, "asin", r_mpc_asin, -1);
-  // TODO rb_define_method (cMPC, "acos", r_mpc_acos, -1);
+  rb_define_method (cMPC, "acos", r_mpc_acos, -1);
   // TODO rb_define_method (cMPC, "atan", r_mpc_atan, -1);
   // TODO rb_define_method (cMPC, "asinh", r_mpc_asinh, -1);
   // TODO rb_define_method (cMPC, "acosh", r_mpc_acosh, -1);
