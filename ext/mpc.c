@@ -511,6 +511,8 @@ VALUE r_mpc_imag(int argc, VALUE *argv, VALUE self)
   return imag;
 }
 
+MPC_SINGLE_FUNCTION(proj)
+
 /*********************************************************************
  *    Basic Arithmetic Functions                                     *
  *********************************************************************/
@@ -612,7 +614,7 @@ void Init_mpc() {
   rb_define_method (cMPC, "real", r_mpc_real, -1);
   rb_define_method (cMPC, "imag", r_mpc_imag, -1);
   // TODO rb_define_method (cMPC, "arg", r_mpc_arg, 0);
-  // TODO rb_define_method (cMPC, "proj", r_mpc_proj, 0);
+  rb_define_method (cMPC, "proj", r_mpc_proj, -1);
 
   // Basic Arithmetic Functions
   // TODO rb_define_method (cMPC, "+", r_mpc_add, 1);
