@@ -515,6 +515,51 @@ VALUE r_mpc_imag(int argc, VALUE *argv, VALUE self)
  *    Basic Arithmetic Functions                                     *
  *********************************************************************/
 
+/*
+ * All of the arithmetic functions will need a lot of massaging ability. For
+ * example, there are only 3 variants of mpc_add, one that takes an mpc_t, one
+ * that takes an unsigned long int, and one that takes an mpfr_t. Here is a
+ * table of the massagings:
+ *
+ * z + x
+ * =====
+ *
+ * x:Fixnum =>
+ *     x  > 0 => mpc_add_ui ( z, (unsigned long int)x )
+ *     x  < 0 => mpc_sub_ui ( z, (unsigned long int)x )
+ *     x == 0 => z
+ * x:Bignum =>   mpc_add_fr ( z, (mpfr_t)x )
+ * x:GMP::Z =>   mpc_add_fr ( z, (mpfr_t)x )
+ * x:GMP::Q =>   mpc_add_fr ( z, (mpfr_t)x )
+ * x:Float  =>   mpc_add_fr ( z, (mpfr_t)x )
+ * x:GMP::F =>   mpc_add_fr ( z, x )
+ * x:MPC =>      mpc_add ( z, x )
+ */
+
+MPC_SINGLE_FUNCTION(neg)
+
+/*
+ * call-seq:
+ *   -z
+ *
+ * Returns _-z_, rounded according to the default rounding mode.
+ */
+VALUE r_mpc_neg2(VALUE self_val)
+{
+  MP_COMPLEX *self, *res;
+  VALUE res_val;
+  mpfr_prec_t real_prec, imag_prec;
+
+  mpc_get_struct(self_val,self);
+  real_prec = mpfr_get_prec(mpc_realref(self));
+  imag_prec = mpfr_get_prec(mpc_imagref(self));
+
+  mpc_make_struct_init3 (res_val, res, real_prec, imag_prec);
+  mpc_neg (res, self, __gmp_default_rounding_mode);
+
+  return res_val;
+}
+
 /*********************************************************************
  *    Power and Logarithm Functions                                  *
  *********************************************************************/
@@ -529,6 +574,7 @@ VALUE r_mpc_imag(int argc, VALUE *argv, VALUE self)
  *   z.sin(rounding_mode)
  *
  * Returns _sin(z)_, rounded according to `rounding_mode`.
+ * s3
  */
 MPC_SINGLE_FUNCTION(sin)
 MPC_SINGLE_FUNCTION(cos)
@@ -538,6 +584,7 @@ MPC_SINGLE_FUNCTION(cosh)
 MPC_SINGLE_FUNCTION(tanh)
 MPC_SINGLE_FUNCTION(asin)
 MPC_SINGLE_FUNCTION(acos)
+MPC_SINGLE_FUNCTION(atan)
 
 void Init_mpc() {
   cMPC = rb_define_class ("MPC", rb_cNumeric);
@@ -573,7 +620,8 @@ void Init_mpc() {
   // TODO rb_define_method (cMPC, "*", r_mpc_mul, 1);
   // TODO rb_define_method (cMPC, "sqr", r_mpc_sqr, 0);
   // TODO rb_define_method (cMPC, "/", r_mpc_div, 1);
-  // TODO rb_define_method (cMPC, "-@", r_mpc_neg, 0);
+  rb_define_method (cMPC, "neg", r_mpc_neg,  -1);
+  rb_define_method (cMPC, "-@",  r_mpc_neg2,  0);
   // TODO rb_define_method (cMPC, "conj", r_mpc_conj, 0);
   // TODO rb_define_method (cMPC, "abs", r_mpc_abs, 0);
   // TODO rb_define_method (cMPC, "norm", r_mpc_norm, 0);
@@ -597,7 +645,7 @@ void Init_mpc() {
   rb_define_method (cMPC, "tanh", r_mpc_tanh, -1);
   rb_define_method (cMPC, "asin", r_mpc_asin, -1);
   rb_define_method (cMPC, "acos", r_mpc_acos, -1);
-  // TODO rb_define_method (cMPC, "atan", r_mpc_atan, -1);
+  rb_define_method (cMPC, "atan", r_mpc_atan, -1);
   // TODO rb_define_method (cMPC, "asinh", r_mpc_asinh, -1);
   // TODO rb_define_method (cMPC, "acosh", r_mpc_acosh, -1);
   // TODO rb_define_method (cMPC, "atanh", r_mpc_atanh, -1);
