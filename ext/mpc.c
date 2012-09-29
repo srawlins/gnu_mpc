@@ -539,6 +539,7 @@ MPC_SINGLE_FUNCTION(proj)
  */
 
 MPC_SINGLE_FUNCTION(neg)
+MPC_SINGLE_FUNCTION(sqr)
 
 /*
  * call-seq:
@@ -620,7 +621,7 @@ void Init_mpc() {
   // TODO rb_define_method (cMPC, "+", r_mpc_add, 1);
   // TODO rb_define_method (cMPC, "-", r_mpc_sub, 1);
   // TODO rb_define_method (cMPC, "*", r_mpc_mul, 1);
-  // TODO rb_define_method (cMPC, "sqr", r_mpc_sqr, 0);
+  rb_define_method (cMPC, "sqr", r_mpc_sqr, -1);
   // TODO rb_define_method (cMPC, "/", r_mpc_div, 1);
   rb_define_method (cMPC, "neg", r_mpc_neg,  -1);
   rb_define_method (cMPC, "-@",  r_mpc_neg2,  0);
