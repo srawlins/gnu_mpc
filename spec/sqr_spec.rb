@@ -54,11 +54,24 @@ describe MPC, '#sqr' do
     end
   end
 
-  it 'should calculate the square of a pure imaginary argument' do
+  it 'should calculate the square of a double precision number' do
     data = [
-      [[ "0x10000000020000p+04", 53, 16], [ "0x10000000effff",      53, 16], [ "0x400008000180fp-22", 53, 16], [ "0x7ffff0077efcbp-32",   53, 16], MPC::MPC_RNDNN],
-      [[ "0x3ffffffffffffd",     53, 16], [ "0x7ffffffffffff4p+52", 53, 16], [ "0x1fffffffffffff",    53, 16], [ "0x1ffffffffffffe",      53, 16], MPC::MPC_RNDZN],
-      [[ "0x1c16e5d4c4d5e7p-45", 53, 16], ["-0x7ffffff800007p-47",  53, 16], [ "0xf",                 53, 16], [ "-0x1111111000000fp-53", 53, 16], MPC::MPC_RNDUN],
+      [[ "0x10000000020000p+04",   53, 16], [ "0x10000000effff",        53, 16], [ "0x400008000180fp-22",   53, 16], [ "0x7ffff0077efcbp-32",   53, 16], MPC::MPC_RNDNN],
+      [[ "0x3ffffffffffffd",       53, 16], [ "0x7ffffffffffff4p+52",   53, 16], [ "0x1fffffffffffff",      53, 16], [ "0x1ffffffffffffe",      53, 16], MPC::MPC_RNDZN],
+      [[ "0x1c16e5d4c4d5e7p-45",   53, 16], ["-0x7ffffff800007p-47",    53, 16], [ "0xf",                   53, 16], ["-0x1111111000000fp-53",  53, 16], MPC::MPC_RNDUN],
+      [[ "0xfdbac097c8dc50p+2096", 53, 16], [ "0x7f6e5d4c3b2a2p+1036",  53, 16], [ "0xfedcba9876543p+1024", 53, 16], [ "0x10000000000001p-42",  53, 16], MPC::MPC_RNDDN],
+      [["-0x10000000020000p+04",   53, 16], [ "0x10000000efffefp-04",   53, 16], [ "0x7ffff0077efcbp-32",   53, 16], [ "0x400008000180fp-22",   53, 16], MPC::MPC_RNDZZ],
+      [[ "0x3ffffffffffffe",       53, 16], ["-0x7ffffffffffff4p+52",   53, 16], [ "0x1fffffffffffff",      53, 16], ["-0x1ffffffffffffe",      53, 16], MPC::MPC_RNDUZ],
+      [[ "0xe0b72ea626af3p-44",    53, 16], [ "0x7ffffff800007p-47",    53, 16], [ "0xf",                   53, 16], [ "0x1111111000000fp-53",  53, 16], MPC::MPC_RNDDZ],
+      [["-0xfdbac097c8dc58p+2096", 53, 16], [ "0x7f6e5d4c3b2a1cp+1032", 53, 16], ["-0x10000000000001p-42",  53, 16], ["-0xfedcba9876543p+1024", 53, 16], MPC::MPC_RNDNZ],
+      [[ "0x10000000020001p+04",   53, 16], ["-0x10000000efffefp-04",   53, 16], [ "0x400008000180fp-22",   53, 16], ["-0x7ffff0077efcbp-32",   53, 16], MPC::MPC_RNDUU],
+      [["-0x3ffffffffffffe",       53, 16], ["-0x7ffffffffffff4p+52",   53, 16], ["-0x1ffffffffffffe",      53, 16], [ "0x1fffffffffffff",      53, 16], MPC::MPC_RNDDU],
+      [["-0x1C16E5D4C4D5E7p-45",   53, 16], [ "0x1ffffffe00001dp-49",   53, 16], ["-0x1111111000000fp-53",  53, 16], ["-0xf",                   53, 16], MPC::MPC_RNDNU],
+      [["-0xfdbac097c8dc50p+2096", 53, 16], ["-0x7f6e5d4c3b2a1cp+1032", 53, 16], [ "0x10000000000001p-42",  53, 16], ["-0xfedcba9876543p+1024", 53, 16], MPC::MPC_RNDZU],
+      [["-0x10000000020001p+04",   53, 16], ["-0x10000000effff",        53, 16], ["-0x7ffff0077efcbp-32",   53, 16], [ "0x400008000180fp-22",   53, 16], MPC::MPC_RNDDD],
+      [[ "0x3ffffffffffffd",       53, 16], ["-0x7ffffffffffff8p+52",   53, 16], ["-0x1fffffffffffff",      53, 16], [ "0x1ffffffffffffe",      53, 16], MPC::MPC_RNDND],
+      [["-0xE0B72EA626AF3p-44",    53, 16], ["-0x1FFFFFFE00001Dp-49",   53, 16], [ "0x1111111000000fp-53",  53, 16], ["-0xf",                   53, 16], MPC::MPC_RNDZD],
+      [[ "0xfdbac097c8dc58p+2096", 53, 16], ["-0x7f6e5d4c3b2a2p+1036",  53, 16], ["-0xfedcba9876543p+1024", 53, 16], ["0x10000000000001p-42",   53, 16], MPC::MPC_RNDUD],
     ]
     data.each do |expected_real, expected_imag, input_real, input_imag, rounding_mode|
       actual = MPC.new([GMP::F.new(*input_real), GMP::F(*input_imag)]).sqr(rounding_mode)
@@ -66,4 +79,18 @@ describe MPC, '#sqr' do
       actual.imag.should eq GMP::F.new(*expected_imag)
     end
   end
+
+  it 'should calculate the square: "improve test coverage"' do
+    actual = MPC.new([GMP::F(17592186044416, 30), GMP::F(536870913, 30)], 30).sqr
+    actual.real.should eq GMP::F.new(309485009533114692573069312, 30)
+    actual.imag.should eq GMP::F.new(18889465966662952943616, 30)
+  end
+
+  it 'should calculate the square: "improve test coverage"; a case where x+y or x-y are 0' do
+    actual = MPC.new([GMP::F(1, 4), GMP::F(1, 4)], 4).sqr
+    actual.real.should eq GMP::F.new(0, 4)
+    actual.imag.should eq GMP::F.new(2, 4)
+  end
+
+  ### There are still more tests in sqr.data, each a result of some bug or other thing
 end
