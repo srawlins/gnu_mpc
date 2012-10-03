@@ -1,6 +1,6 @@
 require File.join(File.dirname(__FILE__), 'spec_helper')
 
-# All tests adapted from MPC 1.0.1's tests/neg.dat
+# All tests adapted from MPC 1.0.1's tests/sqr.dat
 describe MPC, '#sqr' do
   it 'should calculate the square of a pure real argument' do
     data = [

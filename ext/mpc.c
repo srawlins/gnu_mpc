@@ -539,7 +539,6 @@ MPC_SINGLE_FUNCTION(proj)
  */
 
 MPC_SINGLE_FUNCTION(neg)
-MPC_SINGLE_FUNCTION(sqr)
 
 /*
  * call-seq:
@@ -562,6 +561,9 @@ VALUE r_mpc_neg2(VALUE self_val)
 
   return res_val;
 }
+
+MPC_SINGLE_FUNCTION(sqr)
+MPC_SINGLE_FUNCTION(conj)
 
 /*********************************************************************
  *    Power and Logarithm Functions                                  *
@@ -620,17 +622,17 @@ void Init_mpc() {
   // Basic Arithmetic Functions
   // TODO rb_define_method (cMPC, "+", r_mpc_add, 1);
   // TODO rb_define_method (cMPC, "-", r_mpc_sub, 1);
-  // TODO rb_define_method (cMPC, "*", r_mpc_mul, 1);
-  rb_define_method (cMPC, "sqr", r_mpc_sqr, -1);
-  // TODO rb_define_method (cMPC, "/", r_mpc_div, 1);
   rb_define_method (cMPC, "neg", r_mpc_neg,  -1);
   rb_define_method (cMPC, "-@",  r_mpc_neg2,  0);
-  // TODO rb_define_method (cMPC, "conj", r_mpc_conj, 0);
+  // TODO rb_define_method (cMPC, "*", r_mpc_mul, 1);
+  rb_define_method (cMPC, "sqr", r_mpc_sqr, -1);
+  // TODO rb_define_method (cMPC, "fma", r_mpc_fma, 2);
+  // TODO rb_define_method (cMPC, "/", r_mpc_div, 1);
+  rb_define_method (cMPC, "conj", r_mpc_conj, -1);
   // TODO rb_define_method (cMPC, "abs", r_mpc_abs, 0);
   // TODO rb_define_method (cMPC, "norm", r_mpc_norm, 0);
   // TODO rb_define_method (cMPC, "mul_2exp", r_mpc_mul_2exp, 1);
   // TODO rb_define_method (cMPC, "div_2exp", r_mpc_div_2exp, 1);
-  // TODO rb_define_method (cMPC, "fma", r_mpc_fma, 2);
 
   // Power Functions and Logarithm
   // TODO rb_define_method (cMPC, "sqrt", r_mpc_sqrt, 0);
