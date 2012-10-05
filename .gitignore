@@ -6,3 +6,5 @@ ext/Makefile
 manual*.aux
 manual*.log
 manual*.toc
+manual*.latex
+manual*.tex

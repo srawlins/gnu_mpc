@@ -67,12 +67,19 @@ VALUE r_mpc_##name(int argc, VALUE *argv, VALUE self_val)                       
 void rb_mpc_get_hash_arguments(mpc_rnd_t *rnd_mode, mpfr_prec_t *real_prec, mpfr_prec_t *imag_prec, VALUE hash) {
   VALUE rnd_mode_val;
   VALUE real_prec_val;
-  ID rounding_mode_id, precision_id;
-  rounding_mode_id = rb_intern("rounding_mode");
-  precision_id     = rb_intern("precision");
+  VALUE rounding_mode_sym, rounding_sym, round_sym, rnd_sym;
+  VALUE precision_sym, prec_sym;
+  rounding_mode_sym = ID2SYM(rb_intern("rounding_mode"));
+  rounding_sym      = ID2SYM(rb_intern("rounding"));
+  round_sym         = ID2SYM(rb_intern("round"));
+  rnd_sym           = ID2SYM(rb_intern("rnd"));
+  precision_sym     = ID2SYM(rb_intern("precision"));
+  prec_sym          = ID2SYM(rb_intern("prec"));
 
-  /* TODO: allow rnd and round and rounding */
-  rnd_mode_val = rb_hash_aref(hash, ID2SYM(rounding_mode_id));
+  rnd_mode_val = rb_hash_aref(hash, rounding_mode_sym);
+  if (rnd_mode_val == Qnil) { rnd_mode_val = rb_hash_aref(hash, rounding_sym); }
+  if (rnd_mode_val == Qnil) { rnd_mode_val = rb_hash_aref(hash, round_sym); }
+  if (rnd_mode_val == Qnil) { rnd_mode_val = rb_hash_aref(hash, rnd_sym); }
   if (rnd_mode_val != Qnil) {
     *rnd_mode = r_mpc_get_rounding_mode(rnd_mode_val);
   } else {
@@ -81,7 +88,8 @@ void rb_mpc_get_hash_arguments(mpc_rnd_t *rnd_mode, mpfr_prec_t *real_prec, mpfr
 
   /* TODO: allow prec */
   /* TODO: allow real_prec, imag_prec */
-  real_prec_val = rb_hash_aref(hash, ID2SYM(precision_id));
+  real_prec_val = rb_hash_aref(hash, precision_sym);
+  if (real_prec_val == Qnil) { real_prec_val = rb_hash_aref(hash, prec_sym); }
   if (real_prec_val != Qnil) {
     *real_prec = FIX2INT (real_prec_val);
     *imag_prec = FIX2INT (real_prec_val);
@@ -272,9 +280,10 @@ VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
   // argc = 3 ==> argv[0] is value, argv[1] is prec_r, argv[2] is prec_i
   //           OR argv[0] is value, argv[1] is prec,   argv[2] is rnd
   if (argc == 3) {
-    if (MPCRND_P (argv[1]))
+    if (MPCRND_P (argv[1])) {
+      mpc_init2 (self_val, mpfr_get_default_prec());
       rb_raise (rb_eArgError, "the rounding mode should be the last argument");
-    else if (FIXNUM_P (argv[2])) {
+    } else if (FIXNUM_P (argv[2])) {
       if (FIX2INT (argv[2]) >= 0) {
         // argv[1] was actually prec_r and //argv[2] is prec_i
         prec_re = (mpfr_prec_t) prec;
@@ -287,6 +296,7 @@ VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
     } else if (MPCRND_P (argv[2])) {
       rnd_mode_val = r_get_mpc_rounding_mode(argv[2]);
     } else {
+      mpc_init2 (self_val, mpfr_get_default_prec());
       rb_raise (rb_eTypeError, "don't know how to interpret argument 2, a %s", rb_class2name (rb_class_of (argv[2])));
     }
   }
