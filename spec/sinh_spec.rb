@@ -14,6 +14,18 @@ describe MPC, '#sinh' do
     end
   end
 
+  it 'should calculate the hyperbolic sine of a pure real argument, using hash arguments' do
+    data = [
+      ["-0x12cd9fc44eb98p-48",   MPC.new([GMP::F(-1, 7), GMP::F(0, 7)])],
+      [ "0x12cd9fc44eb98p-48",   MPC.new([GMP::F( 1, 7), GMP::F(0, 7)])]
+    ]
+    data.each do |expected, input|
+      actual = input.sinh(:rounding_mode => MPC::MPC_RNDNN, :precision => 50)
+      actual.real.should eq GMP::F.new(expected, 50, 16)
+      actual.imag.should eq GMP::F(0)
+    end
+  end
+
   it 'should calculate the hyperbolic sine of a pure imaginary argument' do
     data = [
       ["-0xd76aa47848678p-52",   MPC.new([GMP::F(0, 7), GMP::F(-1, 7)])],

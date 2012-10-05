@@ -20,42 +20,75 @@
  * Macros
  */
 
-#define MPC_SINGLE_FUNCTION(name)                                                          \
-VALUE r_mpc_##name(int argc, VALUE *argv, VALUE self_val)                                  \
-{                                                                                          \
-  MP_COMPLEX *self, *res;                                                                  \
-  VALUE rnd_mode_val;                                                                      \
-  VALUE  res_real_prec_val, res_imag_prec_val;                                             \
-  VALUE res_val;                                                                           \
-                                                                                           \
-  mpfr_prec_t real_prec, imag_prec;                                                        \
-  mpfr_prec_t res_real_prec, res_imag_prec;                                                \
-  mpc_rnd_t rnd_mode;                                                                      \
-                                                                                           \
-  mpc_get_struct(self_val,self);                                                           \
-  real_prec = mpfr_get_prec(mpc_realref(self));                                            \
-  imag_prec = mpfr_get_prec(mpc_imagref(self));                                            \
-                                                                                           \
-  rb_scan_args (argc, argv, "03", &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);  \
-                                                                                           \
-  if (NIL_P (rnd_mode_val)) { rnd_mode = __gmp_default_rounding_mode; }                    \
-  else { rnd_mode = r_mpc_get_rounding_mode(rnd_mode_val); }                               \
-                                                                                           \
-  if (NIL_P (res_real_prec_val) && NIL_P (res_imag_prec_val)) {                            \
-    res_real_prec = real_prec;                                                             \
-    res_imag_prec = imag_prec;                                                             \
-  } else if (NIL_P (res_imag_prec_val)) {                                                  \
-    res_real_prec = FIX2INT( res_real_prec_val);                                           \
-    res_imag_prec = FIX2INT( res_real_prec_val);                                           \
-  } else {                                                                                 \
-    res_real_prec = FIX2INT( res_real_prec_val);                                           \
-    res_imag_prec = FIX2INT( res_imag_prec_val);                                           \
-  }                                                                                        \
-                                                                                           \
-  mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);                      \
-  mpc_##name (res, self, rnd_mode);                                                        \
-                                                                                           \
-  return res_val;                                                                          \
+#define MPC_SINGLE_FUNCTION(name)                                                            \
+VALUE r_mpc_##name(int argc, VALUE *argv, VALUE self_val)                                    \
+{                                                                                            \
+  MP_COMPLEX *self, *res;                                                                    \
+  VALUE rnd_mode_val;                                                                        \
+  VALUE  res_real_prec_val, res_imag_prec_val;                                               \
+  VALUE res_val;                                                                             \
+                                                                                             \
+  mpfr_prec_t real_prec, imag_prec;                                                          \
+  mpfr_prec_t res_real_prec, res_imag_prec;                                                  \
+  mpc_rnd_t rnd_mode;                                                                        \
+                                                                                             \
+  mpc_get_struct(self_val,self);                                                             \
+  real_prec = mpfr_get_prec(mpc_realref(self));                                              \
+  imag_prec = mpfr_get_prec(mpc_imagref(self));                                              \
+                                                                                             \
+  if (argc > 0 && TYPE(argv[0]) == T_HASH) {                                                 \
+    rb_mpc_get_hash_arguments (&rnd_mode, &real_prec, &imag_prec, argv[0]);                  \
+    res_real_prec = real_prec;                                                               \
+    res_imag_prec = imag_prec;                                                               \
+  } else {                                                                                   \
+    rb_scan_args (argc, argv, "03", &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);  \
+                                                                                             \
+    if (NIL_P (rnd_mode_val)) { rnd_mode = __gmp_default_rounding_mode; }                    \
+    else { rnd_mode = r_mpc_get_rounding_mode(rnd_mode_val); }                               \
+                                                                                             \
+    if (NIL_P (res_real_prec_val) && NIL_P (res_imag_prec_val)) {                            \
+      res_real_prec = real_prec;                                                             \
+      res_imag_prec = imag_prec;                                                             \
+    } else if (NIL_P (res_imag_prec_val)) {                                                  \
+      res_real_prec = FIX2INT( res_real_prec_val);                                           \
+      res_imag_prec = FIX2INT( res_real_prec_val);                                           \
+    } else {                                                                                 \
+      res_real_prec = FIX2INT( res_real_prec_val);                                           \
+      res_imag_prec = FIX2INT( res_imag_prec_val);                                           \
+    }                                                                                        \
+  }                                                                                          \
+                                                                                             \
+  mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);                        \
+  mpc_##name (res, self, rnd_mode);                                                          \
+                                                                                             \
+  return res_val;                                                                            \
+}
+
+void rb_mpc_get_hash_arguments(mpc_rnd_t *rnd_mode, mpfr_prec_t *real_prec, mpfr_prec_t *imag_prec, VALUE hash) {
+  VALUE rnd_mode_val;
+  VALUE real_prec_val;
+  ID rounding_mode_id, precision_id;
+  rounding_mode_id = rb_intern("rounding_mode");
+  precision_id     = rb_intern("precision");
+
+  /* TODO: allow rnd and round and rounding */
+  rnd_mode_val = rb_hash_aref(hash, ID2SYM(rounding_mode_id));
+  if (rnd_mode_val != Qnil) {
+    *rnd_mode = r_mpc_get_rounding_mode(rnd_mode_val);
+  } else {
+    *rnd_mode = __gmp_default_rounding_mode;
+  }
+
+  /* TODO: allow prec */
+  /* TODO: allow real_prec, imag_prec */
+  real_prec_val = rb_hash_aref(hash, ID2SYM(precision_id));
+  if (real_prec_val != Qnil) {
+    *real_prec = FIX2INT (real_prec_val);
+    *imag_prec = FIX2INT (real_prec_val);
+  } else {
+  }
+
+  /* TODO: disallow any other args. Throw a fit. */
 }
 
 /*
@@ -569,6 +602,8 @@ MPC_SINGLE_FUNCTION(conj)
  *    Power and Logarithm Functions                                  *
  *********************************************************************/
 
+MPC_SINGLE_FUNCTION(sqrt)
+
 /*********************************************************************
  *    Trigonometric Functions                                        *
  *********************************************************************/
@@ -635,7 +670,7 @@ void Init_mpc() {
   // TODO rb_define_method (cMPC, "div_2exp", r_mpc_div_2exp, 1);
 
   // Power Functions and Logarithm
-  // TODO rb_define_method (cMPC, "sqrt", r_mpc_sqrt, 0);
+  rb_define_method (cMPC, "sqrt", r_mpc_sqrt, -1);
   // TODO rb_define_method (cMPC, "**", r_mpc_pow, 1);
   // TODO rb_define_method (cMPC, "exp", r_mpc_exp, 0);
   // TODO rb_define_method (cMPC, "log", r_mpc_log, 0);

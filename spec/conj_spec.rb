@@ -28,7 +28,7 @@ describe MPC, '#conj' do
     end
   end
 
-  it 'should calculate the square of a pure imaginary argument' do
+  it 'should calculate the conjugate of a pure imaginary argument' do
     data = [
       [[0, 53], ["-0x123456789abcdep+52", 53, 16], MPC.new([GMP::F(0, 53), GMP::F( "0x123456789abcdep+52", 53, 16)]), MPC::MPC_RNDNN],
       [[0, 53], ["-0x123456789abcdep+52", 53, 16], MPC.new([GMP::F(0, 51), GMP::F( "0x123456789abcdep+52", 54, 16)]), MPC::MPC_RNDZN],
@@ -45,7 +45,7 @@ describe MPC, '#conj' do
       [[0, 53], ["-0x123456789abcdep+52", 53, 16], MPC.new([GMP::F(0, 29), GMP::F( "0x123456789abcdep+52", 65, 16)]), MPC::MPC_RNDDD],
       [[0, 53], ["-0x123456789abcdep+52", 53, 16], MPC.new([GMP::F(0, 27), GMP::F( "0x123456789abcdep+52", 66, 16)]), MPC::MPC_RNDND],
       [[0, 53], [ "0x123456789abcdep+52", 53, 16], MPC.new([GMP::F(0, 25), GMP::F("-0x123456789abcdep+52", 67, 16)]), MPC::MPC_RNDZD],
-      [[0, 53], [ "0x123456789abcdep+52", 53, 16], MPC.new([GMP::F(0, 23), GMP::F("-0x123456789abcdep+52", 68, 16)]), MPC::MPC_RNDUD],
+      [[0, 53], [ "0x123456789abcdep+52", 53, 16], MPC.new([GMP::F(0, 23), GMP::F("-0x123456789abcdep+52", 68, 16)]), MPC::MPC_RNDUD]
     ]
     data.each do |expected_real, expected_imag, input, rounding_mode|
       actual = input.conj(rounding_mode)

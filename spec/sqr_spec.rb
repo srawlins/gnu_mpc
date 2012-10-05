@@ -71,7 +71,7 @@ describe MPC, '#sqr' do
       [["-0x10000000020001p+04",   53, 16], ["-0x10000000effff",        53, 16], ["-0x7ffff0077efcbp-32",   53, 16], [ "0x400008000180fp-22",   53, 16], MPC::MPC_RNDDD],
       [[ "0x3ffffffffffffd",       53, 16], ["-0x7ffffffffffff8p+52",   53, 16], ["-0x1fffffffffffff",      53, 16], [ "0x1ffffffffffffe",      53, 16], MPC::MPC_RNDND],
       [["-0xE0B72EA626AF3p-44",    53, 16], ["-0x1FFFFFFE00001Dp-49",   53, 16], [ "0x1111111000000fp-53",  53, 16], ["-0xf",                   53, 16], MPC::MPC_RNDZD],
-      [[ "0xfdbac097c8dc58p+2096", 53, 16], ["-0x7f6e5d4c3b2a2p+1036",  53, 16], ["-0xfedcba9876543p+1024", 53, 16], ["0x10000000000001p-42",   53, 16], MPC::MPC_RNDUD],
+      [[ "0xfdbac097c8dc58p+2096", 53, 16], ["-0x7f6e5d4c3b2a2p+1036",  53, 16], ["-0xfedcba9876543p+1024", 53, 16], ["0x10000000000001p-42",   53, 16], MPC::MPC_RNDUD]
     ]
     data.each do |expected_real, expected_imag, input_real, input_imag, rounding_mode|
       actual = MPC.new([GMP::F.new(*input_real), GMP::F(*input_imag)]).sqr(rounding_mode)
