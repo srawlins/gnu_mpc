@@ -613,6 +613,7 @@ MPC_SINGLE_FUNCTION(conj)
  *********************************************************************/
 
 MPC_SINGLE_FUNCTION(sqrt)
+MPC_SINGLE_FUNCTION(exp)
 
 /*********************************************************************
  *    Trigonometric Functions                                        *
@@ -682,8 +683,9 @@ void Init_mpc() {
   // Power Functions and Logarithm
   rb_define_method (cMPC, "sqrt", r_mpc_sqrt, -1);
   // TODO rb_define_method (cMPC, "**", r_mpc_pow, 1);
-  // TODO rb_define_method (cMPC, "exp", r_mpc_exp, 0);
-  // TODO rb_define_method (cMPC, "log", r_mpc_log, 0);
+  rb_define_method (cMPC, "exp", r_mpc_exp, -1);
+  // TODO rb_define_method (cMPC, "log", r_mpc_log, -1);
+  // TODO rb_define_method (cMPC, "log10", r_mpc_log10, -1);
 
   // Trigonometric Functions
   rb_define_method (cMPC, "sin", r_mpc_sin, -1);
