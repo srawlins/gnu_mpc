@@ -43,25 +43,36 @@ VALUE r_mpc_##name(int argc, VALUE *argv, VALUE self_val)                       
   } else {                                                                                   \
     rb_scan_args (argc, argv, "03", &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);  \
                                                                                              \
-    if (NIL_P (rnd_mode_val)) { rnd_mode = __gmp_default_rounding_mode; }                    \
-    else { rnd_mode = r_mpc_get_rounding_mode(rnd_mode_val); }                               \
-                                                                                             \
-    if (NIL_P (res_real_prec_val) && NIL_P (res_imag_prec_val)) {                            \
-      res_real_prec = real_prec;                                                             \
-      res_imag_prec = imag_prec;                                                             \
-    } else if (NIL_P (res_imag_prec_val)) {                                                  \
-      res_real_prec = FIX2INT( res_real_prec_val);                                           \
-      res_imag_prec = FIX2INT( res_real_prec_val);                                           \
-    } else {                                                                                 \
-      res_real_prec = FIX2INT( res_real_prec_val);                                           \
-      res_imag_prec = FIX2INT( res_imag_prec_val);                                           \
-    }                                                                                        \
+    r_mpc_set_default_args (rnd_mode_val, res_real_prec_val, res_imag_prec_val,              \
+                           &rnd_mode,    &res_real_prec,    &res_imag_prec,                  \
+                                              real_prec,         imag_prec);                 \
   }                                                                                          \
                                                                                              \
   mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);                        \
   mpc_##name (res, self, rnd_mode);                                                          \
                                                                                              \
   return res_val;                                                                            \
+}
+
+/*
+ * Helper Methods
+ */
+void r_mpc_set_default_args (VALUE rnd_mode_val,    VALUE res_real_prec_val,    VALUE res_imag_prec_val,
+                        mpc_rnd_t *rnd_mode, mpfr_prec_t *res_real_prec, mpfr_prec_t *res_imag_prec,
+                                             mpfr_prec_t      real_prec, mpfr_prec_t      imag_prec) {
+  if (NIL_P (rnd_mode_val)) { *rnd_mode = __gmp_default_rounding_mode; }
+  else { *rnd_mode = r_mpc_get_rounding_mode(rnd_mode_val); }
+
+  if (NIL_P (res_real_prec_val) && NIL_P (res_imag_prec_val)) {
+    *res_real_prec = real_prec;
+    *res_imag_prec = imag_prec;
+  } else if (NIL_P (res_imag_prec_val)) {
+    *res_real_prec = FIX2INT( res_real_prec_val);
+    *res_imag_prec = FIX2INT( res_real_prec_val);
+  } else {
+    *res_real_prec = FIX2INT( res_real_prec_val);
+    *res_imag_prec = FIX2INT( res_imag_prec_val);
+  }
 }
 
 void rb_mpc_get_hash_arguments(mpc_rnd_t *rnd_mode, mpfr_prec_t *real_prec, mpfr_prec_t *imag_prec, VALUE hash) {
@@ -614,6 +625,7 @@ MPC_SINGLE_FUNCTION(conj)
 
 MPC_SINGLE_FUNCTION(sqrt)
 MPC_SINGLE_FUNCTION(exp)
+MPC_SINGLE_FUNCTION(log)
 
 /*********************************************************************
  *    Trigonometric Functions                                        *
@@ -684,7 +696,7 @@ void Init_mpc() {
   rb_define_method (cMPC, "sqrt", r_mpc_sqrt, -1);
   // TODO rb_define_method (cMPC, "**", r_mpc_pow, 1);
   rb_define_method (cMPC, "exp", r_mpc_exp, -1);
-  // TODO rb_define_method (cMPC, "log", r_mpc_log, -1);
+  rb_define_method (cMPC, "log", r_mpc_log, -1);
   // TODO rb_define_method (cMPC, "log10", r_mpc_log10, -1);
 
   // Trigonometric Functions
