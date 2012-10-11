@@ -8,3 +8,4 @@ manual*.log
 manual*.toc
 manual*.latex
 manual*.tex
+*~

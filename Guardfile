@@ -7,7 +7,7 @@ guard 'rspec' do
 end
 
 guard 'shell' do
-  watch(/ext\/(.*).c$/) do |m|
+  watch(/ext\/(.*)\.[c|h]$/) do |m|
     system("cd ext && make; cd ..")
     FileUtils.touch Dir.glob(File.join('spec', 'spec_helper.rb')).first # force the rspec guard to fire
   end
