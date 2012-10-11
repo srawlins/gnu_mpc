@@ -38,6 +38,7 @@ typedef __mpc_struct MP_COMPLEX;
 #define r_mpc_set_d(var1, var2) (mpc_set_d (var1, var2, __gmp_default_rounding_mode))
 
 /* EXPECTED_Cxxx macros */
+#define EXPECTED_FXC "Expected GMP::F, Fixnum, or MPC"
 
 // MPC Rounding Modes
 #define mpcrnd_get_struct(ruby_var,c_var) { Data_Get_Struct(ruby_var, int, c_var); }
