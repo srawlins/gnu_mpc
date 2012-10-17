@@ -639,6 +639,7 @@ VALUE r_mpc_add2(VALUE self_val, VALUE arg_val)
 
 VALUE r_mpc_add_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, mpfr_prec_t res_real_prec, mpfr_prec_t res_imag_prec) {
   MP_COMPLEX *self, *res, *arg_c;
+  MP_INT *arg_z;
   MP_FLOAT *arg_f;
   VALUE res_val;
 
@@ -651,13 +652,24 @@ VALUE r_mpc_add_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, m
     } else {
       mpc_sub_ui (res, self, -FIX2NUM (arg_val), rnd_mode);
     }
-  } else if (GMPF_P (arg_val)) {
-    mpf_get_struct (arg_val, arg_f);
+  } else if (BIGNUM_P (arg_val)) {
     mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+    mpz_temp_from_bignum (arg_z, arg_val);
+    mpc_set_z (res, arg_z, MPC_RNDNN);
+    mpz_temp_free (arg_z);
+    mpc_add (res, self, res, rnd_mode);
+  } else if (GMPZ_P (arg_val)) {
+    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+    mpz_get_struct (arg_val, arg_z);
+    mpc_set_z (res, arg_z, MPC_RNDNN);
+    mpc_add (res, self, res, rnd_mode);
+  } else if (GMPF_P (arg_val)) {
+    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+    mpf_get_struct (arg_val, arg_f);
     mpc_add_fr (res, self, arg_f, rnd_mode);
   } else if (MPC_P (arg_val)) {
-    mpc_get_struct (arg_val, arg_c);
     mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+    mpc_get_struct (arg_val, arg_c);
     mpc_add (res, self, arg_c, rnd_mode);
   } else {
     typeerror(FXC);
