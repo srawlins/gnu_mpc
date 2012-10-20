@@ -528,7 +528,7 @@ VALUE r_mpc_real(int argc, VALUE *argv, VALUE self)
 
   rb_scan_args (argc, argv, "01", &rnd_mode);
   if (NIL_P (rnd_mode)) { rnd_mode_val = r_mpc_default_rounding_mode; }
-  else { rnd_mode_val = r_get_mpc_rounding_mode(rnd_mode); }
+  else { rnd_mode_val = r_get_mpc_rounding_mode (rnd_mode); }
 
   mpf_make_struct (real, real_val);
   mpc_get_prec2 (&pr, &pi, self_val);
@@ -705,6 +705,34 @@ VALUE r_mpc_neg2(VALUE self_val)
 MPC_SINGLE_FUNCTION(sqr)
 MPC_SINGLE_FUNCTION(conj)
 
+/*
+ * call-seq:
+ *   c.abs
+ *   c.abs(rounding_mode)
+ *
+ * Returns the absolute value of _c_ as a GMP_F float (an MPFR float, really).
+ */
+VALUE r_mpc_abs(int argc, VALUE *argv, VALUE self)
+{
+  MP_COMPLEX *self_val;
+  MP_FLOAT *abs_val;
+  VALUE rnd_mode, abs;
+  mpfr_prec_t pr=0, pi=0;
+  mpc_rnd_t rnd_mode_val;
+
+  mpc_get_struct (self, self_val);
+
+  rb_scan_args (argc, argv, "01", &rnd_mode);
+  if (NIL_P (rnd_mode)) { rnd_mode_val = r_mpc_default_rounding_mode; }
+  else { rnd_mode_val = r_get_mpc_rounding_mode (rnd_mode); }
+
+  mpf_make_struct (abs, abs_val);
+  mpc_get_prec2 (&pr, &pi, self_val);
+  mpfr_init2 (abs_val, pr);
+  mpc_abs (abs_val, self_val, rnd_mode_val);
+  return abs;
+}
+
 /*********************************************************************
  *    Power and Logarithm Functions                                  *
  *********************************************************************/
@@ -774,7 +802,7 @@ void Init_mpc() {
   // TODO rb_define_method (cMPC, "fma", r_mpc_fma, 2);
   // TODO rb_define_method (cMPC, "/", r_mpc_div, 1);
   rb_define_method (cMPC, "conj", r_mpc_conj, -1);
-  // TODO rb_define_method (cMPC, "abs", r_mpc_abs, 0);
+  rb_define_method (cMPC, "abs", r_mpc_abs, -1);
   // TODO rb_define_method (cMPC, "norm", r_mpc_norm, 0);
   // TODO rb_define_method (cMPC, "mul_2exp", r_mpc_mul_2exp, 1);
   // TODO rb_define_method (cMPC, "div_2exp", r_mpc_div_2exp, 1);
