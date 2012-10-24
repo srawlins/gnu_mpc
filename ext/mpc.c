@@ -764,6 +764,92 @@ VALUE r_mpc_sub_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, m
   return res_val;
 }
 
+VALUE r_mpc_mul_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, mpfr_prec_t res_real_prec, mpfr_prec_t res_imag_prec);
+VALUE r_mpc_mul(int argc, VALUE *argv, VALUE self_val)
+{
+  MP_COMPLEX *self;
+  VALUE rnd_mode_val;
+  VALUE  res_real_prec_val, res_imag_prec_val;
+  VALUE arg_val;
+
+  mpfr_prec_t real_prec, imag_prec;
+  mpfr_prec_t res_real_prec, res_imag_prec;
+  mpc_rnd_t rnd_mode;
+
+  mpc_get_struct(self_val,self);
+  real_prec = mpfr_get_prec(mpc_realref(self));
+  imag_prec = mpfr_get_prec(mpc_imagref(self));
+
+  //if (argc > 0 && TYPE(argv[0]) == T_HASH) {
+  //  rb_mpc_get_hash_arguments (&rnd_mode, &real_prec, &imag_prec, argv[0]);
+    //res_real_prec = real_prec;
+    //res_imag_prec = imag_prec;
+  //} else {
+    rb_scan_args (argc, argv, "13", &arg_val, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
+
+    r_mpc_set_default_args (rnd_mode_val, res_real_prec_val, res_imag_prec_val,
+                           &rnd_mode,    &res_real_prec,    &res_imag_prec,
+                                              real_prec,         imag_prec);
+  //}
+
+  //return res_val;
+  return r_mpc_mul_do_the_work(self_val, arg_val, rnd_mode, res_real_prec, res_imag_prec);
+}
+
+VALUE r_mpc_mul2(VALUE self_val, VALUE arg_val)
+{
+  MP_COMPLEX *self;
+
+  mpfr_prec_t res_real_prec, res_imag_prec;
+
+  mpc_get_struct(self_val, self);
+  res_real_prec = mpfr_get_prec(mpc_realref(self));
+  res_imag_prec = mpfr_get_prec(mpc_imagref(self));
+
+  return r_mpc_mul_do_the_work(self_val, arg_val, MPC_RNDNN, res_real_prec, res_imag_prec);
+}
+
+VALUE r_mpc_mul_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, mpfr_prec_t res_real_prec, mpfr_prec_t res_imag_prec) {
+  MP_COMPLEX *self, *res, *arg_c;
+  MP_INT *arg_z;
+  MP_FLOAT *arg_f;
+  VALUE res_val;
+
+  mpc_get_struct(self_val,self);
+
+  if (FIXNUM_P (arg_val)) {
+    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+    if (FIX2NUM (arg_val) >= 0) {
+      mpc_mul_ui (res, self, FIX2NUM (arg_val), rnd_mode);
+    } else {
+      mpc_mul_si (res, self, FIX2NUM (arg_val), rnd_mode);
+    }
+  } else if (BIGNUM_P (arg_val)) {
+    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+    mpz_temp_from_bignum (arg_z, arg_val);
+    mpc_set_z (res, arg_z, MPC_RNDNN);
+    mpz_temp_free (arg_z);
+    mpc_mul (res, self, res, rnd_mode);
+  } else if (GMPZ_P (arg_val)) {
+    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+    mpz_get_struct (arg_val, arg_z);
+    mpc_set_z (res, arg_z, MPC_RNDNN);
+    mpc_mul (res, self, res, rnd_mode);
+  } else if (GMPF_P (arg_val)) {
+    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+    mpf_get_struct (arg_val, arg_f);
+    mpc_mul_fr (res, self, arg_f, rnd_mode);
+  } else if (MPC_P (arg_val)) {
+    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+    mpc_get_struct (arg_val, arg_c);
+    mpc_mul (res, self, arg_c, rnd_mode);
+  } else {
+    typeerror(FXC);
+  }
+
+  return res_val;
+}
+
 MPC_SINGLE_FUNCTION(neg)
 
 /*
@@ -884,7 +970,8 @@ void Init_mpc() {
   rb_define_method (cMPC, "-",   r_mpc_sub2,  1);
   rb_define_method (cMPC, "neg", r_mpc_neg,  -1);
   rb_define_method (cMPC, "-@",  r_mpc_neg2,  0);
-  // TODO rb_define_method (cMPC, "*", r_mpc_mul, 1);
+  rb_define_method (cMPC, "mul", r_mpc_mul,  -1);
+  rb_define_method (cMPC, "*",   r_mpc_mul2,  1);
   rb_define_method (cMPC, "sqr", r_mpc_sqr, -1);
   // TODO rb_define_method (cMPC, "fma", r_mpc_fma, 2);
   // TODO rb_define_method (cMPC, "/", r_mpc_div, 1);
