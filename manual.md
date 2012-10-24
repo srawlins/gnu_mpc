@@ -270,7 +270,7 @@ of three ways:
 & & MPC.new(\textit{str}, \textit{base = 0}) $\rightarrow$ \textit{integer} \\
 \cmidrule(r){2-3}
 & \multicolumn{2}{p{\defnwidth}}{
-  This method creates a new `MPC` integer. It typically takes one optional argument for
+  This method creates a new \texttt{MPC} integer. It typically takes one optional argument for
   the value of the integer. This argument can be one of several classes. If the first
   argument is a String, then a second argument, the base, may be optionally supplied.
   Here are some examples:\newline
@@ -353,6 +353,86 @@ MPC.new(GMP::Z.new(31))  #=> 31 (GMP Integer)
 
 ### Projection and Decomposing
 
+\begin{tabular}{p{\methwidth} l r p{\returnwidth}}
+\toprule
+\textbf{real} & & MPC\#real() & $\rightarrow$ \textit{GMP::F} \\
+& & MPC\#real(\textit{rounding\_mode} = MPC::MPC\_RNDNN) & $\rightarrow$ \textit{GMP::F} \\
+\cmidrule(r){2-4}
+& \multicolumn{3}{p{\defnwidth}}{
+  Return the real part of the receiver, rounded according to
+  $rounding\_mode$.
+} \\
+
+\toprule
+\textbf{imag} & & MPC\#imag() & $\rightarrow$ \textit{GMP::F} \\
+& & MPC\#imag(\textit{rounding\_mode} = MPC::MPC\_RNDNN) & $\rightarrow$ \textit{GMP::F} \\
+\cmidrule(r){2-4}
+& \multicolumn{3}{p{\defnwidth}}{
+  Return the imaginary part of the receiver, rounded according to
+  $rounding\_mode$.
+} \\
+
+\toprule
+\textbf{proj} & & MPC\#proj() & $\rightarrow$ \textit{GMP::F} \\
+& & MPC\#proj(\textit{rounding\_mode} = MPC::MPC\_RNDNN, & \\
+& & \textit{precision} = \textit{mpfr\_default\_precision}) & $\rightarrow$ \textit{GMP::F} \\
+\cmidrule(r){2-4}
+& \multicolumn{3}{p{\defnwidth}}{
+  Return the projection of the receiver onto the Riemann sphere, rounded according to
+  $rounding\_mode$.
+} \\
+\end{tabular}
+
+\ifdef{HTML}
+<table>
+  <tr class="new-method">
+    <th>real</th><th>`MPC#real()` $\rightarrow$ _GMP::F_
+  </tr>
+  <tr class="last-header">
+    <th></th>   <th><code>MPC#real(_rounding_mode_ = MPC::MPC_RNDNN)</code> $\rightarrow$ _GMP::F_
+</th>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+Return the real part of the receiver, rounded according to $rounding\_mode$.
+    </td>
+  </tr>
+
+  <tr class="new-method">
+    <th>imag</th><th>`MPC#imag()` $\rightarrow$ _GMP::F_
+  </tr>
+  <tr class="last-header">
+    <th></th>   <th><code>MPC#imag(_rounding_mode_ = MPC::MPC_RNDNN)</code> $\rightarrow$ _GMP::F_
+</th>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+Return the imaginary part of the receiver, rounded according to $rounding\_mode$.
+    </td>
+  </tr>
+
+  <tr class="new-method">
+    <th>proj</th><th>`MPC#proj()` $\rightarrow$ _GMP::F_
+  </tr>
+  <tr>
+    <th></th>   <th><code>MPC#proj(_rounding_mode_ = MPC::MPC_RNDNN, _precision_ = _mpfr_default_)</code> $\rightarrow$ _GMP::F_
+</th>
+  </tr>
+  <tr class="last-header">
+    <th></th>   <th>`MPC#proj(options_hash)` $\rightarrow$ _complex_</th>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+Return the projection of the receiver onto the Riemann sphere, rounded
+according to $rounding\_mode$.
+    </td>
+  </tr>
+</table>
+\endif
+
 
 
 
@@ -361,6 +441,141 @@ MPC.new(GMP::Z.new(31))  #=> 31 (GMP Integer)
 
 
 ### Basic Arithmetic
+
+\begin{tabular}{p{\methwidth} l r p{\returnwidth}}
+\toprule
+\textbf{add, +} & & MPC\#add($op2$) & $\rightarrow complex$ \\
+& & MPC\#add($op2$, $rounding\_mode$ = MPC::MPC\_RNDNN) & $\rightarrow complex$ \\
+& & $op1 + op2$ & $\rightarrow complex$ \\
+\cmidrule(r){2-4}
+& \multicolumn{3}{p{\defnwidth}}{
+  Return the sum of the receiver ($op1$) and $op2$, rounded according to
+  $rounding\_mode$. $op2$ may be a \texttt{Fixnum}, \texttt{GMP::Z}, \texttt{Bignum}, or \texttt{GMP::F}.\newline
+
+  \texttt{a = MPC.new(GMP::F("3.1416", 12)) \#=> (3.1416 +0) \newline
+          a + 0 \qqqquad\qqqquad\qquad\qqqquad \#=> (3.1416 +0) \newline
+          a + 1 \qqqquad\qqqquad\qqqquad\qquad \#=> (4.1406 +0) \newline
+          a + GMP::Z(1024) \qqqquad\qqqquad\  \#=> (1.0270e+3 +0) \newline
+          a + 2**66 \qqqquad\qqqquad\qqqquad \#=> (7.3787e+19 +0) \newline
+          a + GMP::F("3.1416", 12) \qqqquad\  \#=> (6.2832 +0) \newline}
+} \\
+
+\toprule
+\textbf{sub, -} & & MPC\#sub($op2$) & $\rightarrow complex$ \\
+& & MPC\#sub($op2$, $rounding\_mode$ = MPC::MPC\_RNDNN) & $\rightarrow complex$ \\
+& & $op1 - op2$ & $\rightarrow complex$ \\
+\cmidrule(r){2-4}
+& \multicolumn{3}{p{\defnwidth}}{
+  Return the difference between the receiver ($op1$) and $op2$, rounded according to
+  $rounding\_mode$. $op2$ may be a \texttt{Fixnum}, \texttt{GMP::Z}, \texttt{Bignum}, or \texttt{GMP::F}.\newline
+
+  \texttt{a = MPC.new(GMP::F("3.1416", 12)) \#=> (3.1416 +0) \newline
+          a - 0 \qqqquad\qqqquad\qquad\qqqquad \#=> (3.1416 +0) \newline
+          a - 1 \qqqquad\qqqquad\qqqquad\qquad \#=> (2.1416 +0) \newline
+          a - GMP::Z(1024) \qqqquad\qqqquad\  \#=> (-1.0208e+3 +0) \newline
+          a - 2**66 \qqqquad\qqqquad\qqqquad \#=> (-7.3787e+19 +0) \newline
+          a - GMP::F("3.1416", 12) \qqqquad\  \#=> (+0 +0) \newline}
+} \\
+
+\toprule
+\textbf{mul, *} & & MPC\#mul($op2$) & $\rightarrow complex$ \\
+& & MPC\#mul($op2$, $rounding\_mode$ = MPC::MPC\_RNDNN) & $\rightarrow complex$ \\
+& & $op1 * op2$ & $\rightarrow complex$ \\
+\cmidrule(r){2-4}
+& \multicolumn{3}{p{\defnwidth}}{
+  Return the product of the receiver ($op1$) and $op2$, rounded according to
+  $rounding\_mode$. $op2$ may be a \texttt{Fixnum}, \texttt{GMP::Z}, \texttt{Bignum}, or \texttt{GMP::F}.\newline
+
+  \texttt{a = MPC.new(GMP::F("3.1416", 12)) \#=> (3.1416 +0) \newline
+          a * 0 \qqqquad\qqqquad\qquad\qqqquad \#=> (+0 +0) \newline
+          a * 1 \qqqquad\qqqquad\qqqquad\qquad \#=> (3.1416 +0) \newline
+          a * GMP::Z(1024) \qqqquad\qqqquad\  \#=> (3.2170e+3 +0) \newline
+          a * 2**66 \qqqquad\qqqquad\qqqquad \#=> (2.3181e+20 +0) \newline
+          a * GMP::F("3.1416", 12) \qqqquad\  \#=> (9.8711 +0) \newline}
+}
+\end{tabular}
+
+\ifdef{HTML}
+<table>
+  <tr class="new-method">
+    <th>add, +</th><th>`MPC#add(op2)` $\rightarrow$ _complex_
+  </tr>
+  <tr>
+    <th></th>   <th><code>MPC#add(_op2_, _rounding_mode_ = MPC::MPC_RNDNN)</code> $\rightarrow$ _complex_
+</th>
+  </tr>
+  <tr class="last-header">
+    <th></th>    <th>`op1 + op2` $\rightarrow$ _complex_
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+Return the sum of the receiver ($op1$) and $op2$, rounded according to
+$rounding\_mode$.
+
+<pre><code>a = MPC.new(GMP::F("3.1416", 12)) #=> (3.1416 +0)
+a + 0                             #=> (3.1416 +0)
+a + 1                             #=> (4.1406 +0)
+a + GMP::Z(1024)                  #=> (1.0270e+3 +0)
+a + 2**66                         #=> (7.3787e+19 +0)
+a + GMP::F("3.1416", 12)          #=> (6.2832 +0)
+</code></pre>
+    </td>
+  </tr>
+
+  <tr class="new-method">
+    <th>sub, -</th><th>`MPC#sub(op2)` $\rightarrow$ _complex_
+  </tr>
+  <tr>
+    <th></th>   <th><code>MPC#sub(_op2_, _rounding_mode_ = MPC::MPC_RNDNN)</code> $\rightarrow$ _complex_
+</th>
+  </tr>
+  <tr class="last-header">
+    <th></th>    <th>`op1 - op2` $\rightarrow$ _complex_
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+Return the difference between the receiver ($op1$) and $op2$, rounded according to
+$rounding\_mode$.
+
+<pre><code>a = MPC.new(GMP::F("3.1416", 12)) #=> (3.1416 +0)
+a - 0                             #=> (3.1416 +0)
+a - 1                             #=> (2.1416 +0)
+a - GMP::Z(1024)                  #=> (-1.0208e+3 +0)
+a - 2**66                         #=> (-7.3787e+19 +0)
+a - GMP::F("3.1416", 12)          #=> (+0 +0)
+</code></pre>
+    </td>
+  </tr>
+
+  <tr class="new-method">
+    <th>mul, *</th><th>`MPC#mul(op2)` $\rightarrow$ _complex_
+  </tr>
+  <tr>
+    <th></th>   <th><code>MPC#mul(_op2_, _rounding_mode_ = MPC::MPC_RNDNN)</code> $\rightarrow$ _complex_
+</th>
+  </tr>
+  <tr class="last-header">
+    <th></th>    <th>`op1 * op2` $\rightarrow$ _complex_
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+Return the product of the receiver ($op1$) and $op2$, rounded according to
+$rounding\_mode$.
+
+<pre><code>a = MPC.new(GMP::F("3.1416", 12)) #=> (3.1416 +0)
+a * 0                             #=> (+0 +0)
+a * 1                             #=> (3.1416 +0)
+a * GMP::Z(1024)                  #=> (3.2170e+3 +0)
+a * 2**66                         #=> (2.3181e+20 +0)
+a * GMP::F("3.1416", 12)          #=> (9.8711 +0)
+</code></pre>
+    </td>
+  </tr>
+</table>
+\endif
 
 
 
@@ -579,6 +794,41 @@ _Not implemented yet._
 }
 \end{tabular}
 
+\begin{tabular}{p{\methwidth} l r p{\returnwidth}}
+\toprule
+\textbf{asin} & & MPC\#asin() & $\rightarrow complex$ \\
+& & MPC\#asin(\textit{rounding\_mode} = MPC::MPC\_RNDNN, & \\
+& & \textit{precision} = \textit{mpfr\_default\_precision}) & $\rightarrow complex$ \\
+& & MPC\#asin(\textit{options\_hash}) & $\rightarrow complex$ \\
+\cmidrule(r){2-4}
+& \multicolumn{3}{p{\defnwidth}}{
+  Return the inverse sine of the receiver, rounded according to
+  $rounding\_mode$.
+} \\
+
+\toprule
+\textbf{acos} & & MPC\#acos() & $\rightarrow complex$ \\
+& & MPC\#acos(\textit{rounding\_mode} = MPC::MPC\_RNDNN, & \\
+& & \textit{precision} = \textit{mpfr\_default\_precision}) & $\rightarrow complex$ \\
+& & MPC\#acos(\textit{options\_hash}) & $\rightarrow complex$ \\
+\cmidrule(r){2-4}
+& \multicolumn{3}{p{\defnwidth}}{
+  Return the inverse cosine of the receiver, rounded according to
+  $rounding\_mode$.
+} \\
+
+\toprule
+\textbf{atan} & & MPC\#atan() & $\rightarrow complex$ \\
+& & MPC\#atan(\textit{rounding\_mode} = MPC::MPC\_RNDNN, & \\
+& & \textit{precision} = \textit{mpfr\_default\_precision}) & $\rightarrow complex$ \\
+& & MPC\#atan(\textit{options\_hash}) & $\rightarrow complex$ \\
+\cmidrule(r){2-4}
+& \multicolumn{3}{p{\defnwidth}}{
+  Return the inverse tangent of the receiver, rounded according to
+  $rounding\_mode$.
+}
+\end{tabular}
+
 \ifdef{HTML}
 <table>
   <tr class="new-method"><th>sin</th><th>`MPC#sin()` $\rightarrow$ _complex_</tr>
@@ -643,6 +893,34 @@ Return the hyperbolic cosine of the receiver, rounded according to $rounding\_mo
   <tr>
     <td></td><td>
 Return the hyperbolic tangent of the receiver, rounded according to $rounding\_mode$.
+    </td>
+  </tr>
+
+  <tr class="new-method"><th>asin</th><th>`MPC#asin()` $\rightarrow$ _complex_</tr>
+  <tr><th></th>   <th><code>MPC#asin(_rounding_mode_ = MPC::MPC_RNDNN, _precision_ = _mpfr_default_)</code> $\rightarrow$ _complex_</th></tr>
+  <tr class="last-header"><th></th>   <th>`MPC#asin(options_hash)` $\rightarrow$ _complex_</th></tr>
+  <tr>
+    <td></td><td>
+Return the inverse sine of the receiver, rounded according to
+$rounding\_mode$.
+    </td>
+  </tr>
+
+  <tr class="new-method"><th>acos</th><th>`MPC#cosh()` $\rightarrow$ _complex_</tr>
+  <tr><th></th>   <th><code>MPC#acos(_rounding_mode_ = MPC::MPC_RNDNN, _precision_ = _mpfr_default_)</code> $\rightarrow$ _complex_</th></tr>
+  <tr class="last-header"><th></th>   <th>`MPC#acos(options_hash)` $\rightarrow$ _complex_</th></tr>
+  <tr>
+    <td></td><td>
+Return the inverse cosine of the receiver, rounded according to $rounding\_mode$.
+    </td>
+  </tr>
+
+  <tr class="new-method"><th>atan</th><th>`MPC#atan()` $\rightarrow$ _complex_</tr>
+  <tr><th></th>   <th><code>MPC#atan(_rounding_mode_ = MPC::MPC_RNDNN, _precision_ = _mpfr_default_)</code> $\rightarrow$ _complex_</th></tr>
+  <tr class="last-header"><th></th>   <th>`MPC#atan(options_hash)` $\rightarrow$ _complex_</th></tr>
+  <tr>
+    <td></td><td>
+Return the inverse tangent of the receiver, rounded according to $rounding\_mode$.
     </td>
   </tr>
 </table>
