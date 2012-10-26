@@ -1,0 +1,653 @@
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<style>
+body {
+  margin: 0 auto;
+  width: 800px;
+}
+
+table {
+  border-collapse: collapse;
+  width:96%;
+}
+
+th {
+  font-weight: normal;
+  text-align: right;
+  white-space: nowrap;
+}
+
+tr.new-method th {
+  border-top: solid 2px black;
+}
+
+th:first-child {
+  text-align: left;
+  width: 0.8in;
+}
+
+tr.last-header th {
+  border-bottom: solid 1px black;
+}
+
+tr.last-header th:first-child {
+  border-bottom: 0;
+}
+
+td:last-child {
+  padding-bottom: 1em;
+}
+
+pre {
+  background-color: #EEEEEE;
+  padding: 3px 2px;
+</style>
+
+<h1 id="gnu-mpc">GNU MPC</h1>
+<p>Ruby bindings to the GNU MPC library</p>
+<p>Edition 0.1.1</p>
+<p>9 October 2012</p>
+<p></p>
+<p>written by Sam Rawlins</p>
+<p>with extensive quoting from the GNU MPC manual</p>
+<p></p>
+<p></p>
+<p>This manual describes how to use the gnu_mpc Ruby gem, which provides bindings to GNU MPC, &quot;a C library for the arithmetic of complex numbers with arbitrarily high precision and correct rounding of the result.&quot;</p>
+<p>Copyright 2012 Sam Rawlins</p>
+<p>Apache 2.0 License <a href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+<p></p>
+<p></p>
+<p></p>
+<h2 id="introduction-to-gnu-mpc">Introduction to GNU MPC</h2>
+<p>GNU MPC is a C library for the arithmetic of complex numbers with arbitrarily high precision and correct rounding of the result. It extends the principles of the IEEE-754 standard for fixed precision real floating point numbers to complex numbers, providing well-defined semantics for every operation. At the same time, speed of operation at high precision is a major design goal.</p>
+<p>The library is built upon and follows the same principles as Gnu Mpfr. It is written by Andreas Enge, Mickaël Gastineau, Philippe Théveny and Paul Zimmermann and is distributed under the Gnu Lesser General Public License, either version 3 of the licence, or (at your option) any later version. The Gnu Mpc library has been registered in France by the Agence pour la Protection des Programmes on 2003-02-05 under the number IDDN FR 001 060029 000 R P 2003 000 10000.</p>
+<p></p>
+<h2 id="introduction-to-the-gnu_mpc-gem">Introduction to the gnu_mpc gem</h2>
+<p>The gnu_gmp Ruby gem is a Ruby library that provides bindings to GNU MPC. The gem is incomplete, and will likely only include a subset of the GMP functions. It is built as a C extension for Ruby, interacting with mpc.h. The gnu_mpc gem is not endorsed or supported by GNU or the MPC team. The gnu_mpc gem also does not ship with MPC; that must be compiled separately.</p>
+<h2 id="installing-the-gnu_mpc-gem">Installing the gnu_mpc gem</h2>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>OK. First, we've got a few requirements. To install the gnu_mpc gem, you need one of the following versions of Ruby:</p>
+<ul>
+<li>(MRI) Ruby 1.8.7 - tested seriously.</li>
+<li>(MRI) Ruby 1.9.3 - tested seriously.</li>
+<li>(REE) Ruby 1.8.7 - tested lightly.</li>
+<li>(RBX) Rubinius 1.1 - tested lightly.</li>
+</ul>
+<p>As you can see, only Matz's Ruby Interpreter (MRI) is seriously supported.</p>
+<p>Next is the platform, the combination of the architecture (processor) and OS. As far as I can tell, if you can compile MPC and Ruby on a given platform, you can use the mpc gem there too. Please report problems with that hypothesis.</p>
+<p>Lastly, MPC. MPC must be compiled and working. &quot;And working&quot; means you ran <code>make check</code> after compiling MPC, and it 'check's out. The following version of MPC have been tested:</p>
+<ul>
+<li>MPC 1.0.1</li>
+</ul>
+<p>That's all. I don't intend to test any older versions.</p>
+<h3 id="installing">Installing</h3>
+<p>You may clone the mpc gem's git repository with:</p>
+<pre><code>git clone git://github.com/srawlins/gnu_mpc.git</code></pre>
+<p>Or you may install the gem from <a href="http://rubygems.org"><code class="url">http://rubygems.org</code></a>:</p>
+<pre><code>gem install gnu_mpc</code></pre>
+<p>At this time, the gem self-compiles. If required libraries cannot be found, you may compile the C extensions manually with:</p>
+<pre><code>cd &lt;gnu_mpc gem directory&gt;/ext
+ruby extconf.rb
+make</code></pre>
+<p>There shouldn't be any errors, or warnings.</p>
+<h2 id="testing-the-gnu_mpc-gem">Testing the gnu_mpc gem</h2>
+<p>Testing the gnu_mpc gem is quite simple. The testing framework uses RSpec.</p>
+<pre><code>bundle &amp;&amp; rspec</code></pre>
+<h2 id="mpc-and-mpc-gem-basics">MPC and mpc gem basics</h2>
+<h3 id="classes">Classes</h3>
+<p>The gnu_mpc gem includes the class <code>MPC</code>. There are also some constants within <code>MPC</code>:</p>
+<p><code>MPC::MPC_VERSION</code> - The version of MPC linked into the mpc gem</p>
+<p><code>MPC::MPC_RNDxy</code> - Rounding mode where \(x\) is the rounding mode for the real part and \(y\) is the rounding mode for the imaginary part.</p>
+<!--\newpage-->
+
+<h3 id="standard-options-hash-keys">Standard Options Hash Keys</h3>
+<p>Unless otherwise noted, each <code>MPC</code> instance method will accept an options hash for optional arguments, after any required arguments. For example, since <code>MPC#pow</code> requires one argument but <code>MPC#sin</code> requires none, options hashes can be supplied like so:</p>
+<pre><code>MPC.new([1,1]).pow(2, {})
+MPC.new([0.5, 0.5]).sin({})</code></pre>
+<p>Here are the keys typically accepted by an <code>MPC</code> instance method.</p>
+<dl>
+<dt><code>:rnd</code>, <code>:round</code>, <code>:rounding</code>, <code>:rounding_mode</code></dt>
+<dd>Rounding mode for the operation
+</dd>
+<dt><code>:prec</code>, <code>:precision</code></dt>
+<dd>Precision used when initializing the return value; This precision will be used for both the real and imaginary parts of the returned complex value.
+</dd>
+<dt><code>:real_prec</code>, <code>:real_precision</code></dt>
+<dd>Precision used for the real part of the return value
+</dd>
+<dt><code>:imag_prec</code>, <code>:imag_precision</code></dt>
+<dd>Precision used for the imaginary part of the return value
+</dd>
+</dl>
+<h3 id="precision-of-returned-values">Precision of Returned Values</h3>
+<p>Unless otherwise noted, the precision of a value returned by an <code>MPC</code> instance method follows certain standards. By default, a method will create and return an object with the MPFR default precision (which can be changed with <code>GMP::F.default_prec=</code>). The user can also pass in a preferred precision in one of three ways:</p>
+<ul>
+<li>Most methods will accept a <code>precision</code> parameter in their ordered argument list, which will be used for both the real and imaginary parts of the return object.</li>
+<li><p>Most methods accept an options hash as well. The user can pass in a perferred precision using the <code>:prec</code> or <code>:precision</code> keys, like so:</p>
+<pre><code>MPC.new(5).sin(:prec =&gt; 64)
+MPC.new([7,11]).exp(:precision =&gt; 128)</code></pre></li>
+<li><p>The user can also specify the precision of the real part, and the imaginary part, individually, using the options hash as well. The <code>:real_prec</code>, <code>:real_precision</code>, <code>:imag_prec</code>, and <code>:imag_precision</code> keys can be used:</p>
+<pre><code>MPC.new(72).sin(:real_prec =&gt; 17, :imag_prec =&gt; 53)</code></pre>
+<p>The broad <code>:prec</code> and <code>:precision</code> values are parsed before the real- and imaginary-specific values, so that</p>
+<pre><code>my_usual_options = {:rounding =&gt; MPC::MPC_RNDZZ, :prec =&gt; 64}
+MPC.new(42).tan(my_usual_options.merge(:prec_real =&gt; 128))</code></pre>
+<p>will return the tangent of 42 with a precision of 64 on the real part and a precision of 128 on the imaginary part.</p></li>
+</ul>
+<h2 id="complex-functions">Complex Functions</h2>
+<h3 id="initializing-assigning-complex-numbers">Initializing, Assigning Complex Numbers</h3>
+
+<table>
+  <tr class='new-method'>
+    <th>
+new
+</th><th>
+<code>MPC.new</code> \(\rightarrow\) <em>integer</em>
+</th>
+  </tr>
+  <tr>
+    <th></th>   <th>
+<code>MPC.new(<em>numeric=0</em>)</code> \(\rightarrow\) <em>integer</em>
+</th>
+  </tr>
+  <tr class='last-header'>
+    <th></th>   <th>
+<code>MPC.new(<em>string</em>)</code> \(\rightarrow\) <em>integer</em>
+</th>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+      
+<p>This method creates a new <code>MPC.new</code> integer. It typically takes one optional argument for the value of the integer. This argument can be one of several classes. If the first argument is a String, then a second argument, the base, may be optionally supplied. Here are some examples:</p>
+<pre><code>MPC.new                  #=> 0 (default)
+MPC.new(1)               #=> 1 (Ruby Fixnum)
+MPC.new("127")           #=> 127 (Ruby String)
+MPC.new("FF", 16)        #=> 255 (Ruby String with base)
+MPC.new("1Z", 36)        #=> 71 (Ruby String with base)
+MPC.new(4294967296)      #=> 4294967296 (Ruby Bignum)
+MPC.new(GMP::Z.new(31))  #=> 31 (GMP Integer)
+</code></pre>
+    </td>
+  </tr>
+</table>
+
+
+
+
+
+
+
+
+
+<h3 id="converting-complex-numbers">Converting Complex Numbers</h3>
+<h3 id="string-and-stream-input-and-output">String and Stream Input and Output</h3>
+<h3 id="complex-comparison">Complex Comparison</h3>
+<h3 id="projection-and-decomposing">Projection and Decomposing</h3>
+
+<table>
+  <tr class="new-method">
+    <th>
+real
+</th><th>
+<code>MPC#real()</code> \(\rightarrow\) <em>GMP::F</em>
+</tr>
+  <tr class="last-header">
+    <th></th>   <th>
+<code>MPC#real(<em>rounding_mode</em> = MPC::MPC_RNDNN)</code> \(\rightarrow\) <em>GMP::F</em>
+</th>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+Return the real part of the receiver, rounded according to \(rounding\_mode\).
+</td>
+  </tr>
+
+
+<tr class="new-method">
+    <th>
+imag
+</th><th>
+<code>MPC#imag()</code> \(\rightarrow\) <em>GMP::F</em>
+</tr>
+  <tr class="last-header">
+    <th></th>   <th>
+<code>MPC#imag(<em>rounding_mode</em> = MPC::MPC_RNDNN)</code> \(\rightarrow\) <em>GMP::F</em>
+</th>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+Return the imaginary part of the receiver, rounded according to \(rounding\_mode\).
+</td>
+  </tr>
+
+
+<tr class="new-method">
+    <th>
+proj
+</th><th>
+<code>MPC#proj()</code> \(\rightarrow\) <em>GMP::F</em>
+</tr>
+  <tr>
+    <th></th>   <th>
+<code>MPC#proj(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>GMP::F</em>
+</th>
+  </tr>
+  <tr class="last-header">
+    <th></th>   <th>
+<code>MPC#proj(options_hash)</code> \(\rightarrow\) <em>complex</em>
+</th>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+Return the projection of the receiver onto the Riemann sphere, rounded according to \(rounding\_mode\).
+</td>
+  </tr>
+</table>
+
+
+
+
+
+
+
+
+
+<h3 id="basic-arithmetic">Basic Arithmetic</h3>
+
+<table>
+  <tr class="new-method">
+    <th>
+add, +
+</th><th>
+<code>MPC#add(op2)</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr>
+    <th></th>   <th>
+<code>MPC#add(<em>op2</em>, <em>rounding_mode</em> = MPC::MPC_RNDNN)</code> \(\rightarrow\) <em>complex</em>
+</th>
+  </tr>
+  <tr class="last-header">
+    <th></th>    <th>
+<code>op1 + op2</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr>
+    <td></td>
+    <td>
+<p>Return the sum of the receiver (\(op1\)) and \(op2\), rounded according to \(rounding\_mode\).</p>
+<pre><code>a = MPC.new(GMP::F("3.1416", 12)) #=> (3.1416 +0)
+a + 0                             #=> (3.1416 +0)
+a + 1                             #=> (4.1406 +0)
+a + GMP::Z(1024)                  #=> (1.0270e+3 +0)
+a + 2**66                         #=> (7.3787e+19 +0)
+a + GMP::F("3.1416", 12)          #=> (6.2832 +0)
+</code></pre>
+    </td>
+  </tr>
+
+
+<tr class="new-method">
+    <th>
+sub, -
+</th><th>
+<code>MPC#sub(op2)</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr>
+    <th></th>   <th>
+<code>MPC#sub(<em>op2</em>, <em>rounding_mode</em> = MPC::MPC_RNDNN)</code> \(\rightarrow\) <em>complex</em>
+</th>
+  </tr>
+  <tr class="last-header">
+    <th></th>    <th>
+<code>op1 - op2</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr>
+    <td></td>
+    <td>
+<p>Return the difference between the receiver (\(op1\)) and \(op2\), rounded according to \(rounding\_mode\).</p>
+<pre><code>a = MPC.new(GMP::F("3.1416", 12)) #=> (3.1416 +0)
+a - 0                             #=> (3.1416 +0)
+a - 1                             #=> (2.1416 +0)
+a - GMP::Z(1024)                  #=> (-1.0208e+3 +0)
+a - 2**66                         #=> (-7.3787e+19 +0)
+a - GMP::F("3.1416", 12)          #=> (+0 +0)
+</code></pre>
+    </td>
+  </tr>
+
+
+<tr class="new-method">
+    <th>
+mul, *
+</th><th>
+<code>MPC#mul(op2)</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr>
+    <th></th>   <th>
+<code>MPC#mul(<em>op2</em>, <em>rounding_mode</em> = MPC::MPC_RNDNN)</code> \(\rightarrow\) <em>complex</em>
+</th>
+  </tr>
+  <tr class="last-header">
+    <th></th>    <th>
+<code>op1 * op2</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr>
+    <td></td>
+    <td>
+<p>Return the product of the receiver (\(op1\)) and \(op2\), rounded according to \(rounding\_mode\).</p>
+<pre><code>a = MPC.new(GMP::F("3.1416", 12)) #=> (3.1416 +0)
+a * 0                             #=> (+0 +0)
+a * 1                             #=> (3.1416 +0)
+a * GMP::Z(1024)                  #=> (3.2170e+3 +0)
+a * 2**66                         #=> (2.3181e+20 +0)
+a * GMP::F("3.1416", 12)          #=> (9.8711 +0)
+</code></pre>
+    </td>
+  </tr>
+</table>
+
+
+
+
+
+
+
+
+
+<h3 id="power-functions-and-logarithm">Power Functions and Logarithm</h3>
+
+<table>
+  <tr class="new-method">
+    <th>
+sqrt
+</th><th>
+<code>MPC#sqrt()</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr>
+    <th></th>   <th>
+<code>MPC#sqrt(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>complex</em>
+</th>
+  </tr>
+  <tr class="last-header">
+    <th></th>   <th>
+<code>MPC#sqrt(options_hash)</code> \(\rightarrow\) <em>complex</em>
+</th>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+Return the square root of the receiver, rounded according to \(rounding\_mode\). The returned value has a non-negative real part, and if its real part is zero, a non-negative imaginary part.
+</td>
+  </tr>
+
+
+<tr class="new-method last-header">
+    <th>
+pow
+</th><th>
+<code>MPC#pow()</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr>
+    <td></td>
+    <td>
+<em>Not implemented yet.</em>
+</td>
+  </tr>
+
+
+<tr class="new-method">
+    <th>
+exp
+</th><th>
+<code>MPC#exp()</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr>
+    <th></th>   <th>
+<code>MPC#exp(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>complex</em>
+</th>
+  </tr>
+  <tr class="last-header">
+    <th></th>   <th>
+<code>MPC#exp(options_hash)</code> \(\rightarrow\) <em>complex</em>
+</th>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+Return the exponential of the receiver, rounded according to \(rounding\_mode\).
+</td>
+  </tr>
+
+
+<tr class="new-method">
+    <th>
+log
+</th><th>
+<code>MPC#log()</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr>
+    <th></th>   <th>
+<code>MPC#log(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>complex</em>
+</th>
+  </tr>
+  <tr class="last-header">
+    <th></th>   <th>
+<code>MPC#log(options_hash)</code> \(\rightarrow\) <em>complex</em>
+</th>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+Return the natural logarithm of the receiver, rounded according to \(rounding\_mode\). The principal branch is chosen, with the branch cut on the negative real axis, so that the imaginary part of the result lies in \([-\pi, \pi]\) and \([-\pi/log(10), \pi/log(10)]\) respectively.
+</td>
+  </tr>
+
+
+
+<tr class="new-method last-header">
+    <th>
+log10
+</th><th>
+<code>MPC#log10()</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr>
+    <td></td>
+    <td>
+<em>Not implemented yet.</em>
+</td>
+  </tr>
+</table>
+
+
+
+
+
+
+
+
+
+<h3 id="trigonometric-functions">Trigonometric Functions</h3>
+
+
+<table>
+  <tr class="new-method"><th>
+sin
+</th><th>
+<code>MPC#sin()</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr><th></th>   <th>
+<code>MPC#sin(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr class="last-header"><th></th>   <th>
+<code>MPC#sin(options_hash)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr>
+    <td></td><td>
+Return the sine of the receiver, rounded according to \(rounding\_mode\).
+</td>
+  </tr>
+
+
+<tr class="new-method"><th>
+cos
+</th><th>
+<code>MPC#cos()</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr><th></th>   <th>
+<code>MPC#cos(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr class="last-header"><th></th>   <th>
+<code>MPC#cos(options_hash)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr>
+    <td></td><td>
+Return the cosine of the receiver, rounded according to \(rounding\_mode\).
+</td>
+  </tr>
+
+
+<tr class="new-method last-header">
+    <th>
+sin_cos
+</th><th>
+<code>MPC#sin_cos()</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr>
+    <td></td>
+    <td>
+<em>Not implemented yet.</em>
+</td>
+  </tr>
+
+
+<tr class="new-method"><th>
+tan
+</th><th>
+<code>MPC#tan()</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr><th></th>   <th>
+<code>MPC#tan(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr class="last-header"><th></th>   <th>
+<code>MPC#tan(options_hash)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr>
+    <td></td><td>
+Return the tangent of the receiver, rounded according to \(rounding\_mode\).
+</td>
+  </tr>
+
+
+<tr class="new-method"><th>
+sinh
+</th><th>
+<code>MPC#sinh()</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr><th></th>   <th>
+<code>MPC#sinh(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr class="last-header"><th></th>   <th>
+<code>MPC#sinh(options_hash)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr>
+    <td></td><td>
+Return the hyperbolic sine of the receiver, rounded according to \(rounding\_mode\).
+</td>
+  </tr>
+
+
+<tr class="new-method"><th>
+cosh
+</th><th>
+<code>MPC#cosh()</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr><th></th>   <th>
+<code>MPC#cosh(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr class="last-header"><th></th>   <th>
+<code>MPC#cosh(options_hash)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr>
+    <td></td><td>
+Return the hyperbolic cosine of the receiver, rounded according to \(rounding\_mode\).
+</td>
+  </tr>
+
+
+<tr class="new-method"><th>
+tanh
+</th><th>
+<code>MPC#tanh()</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr><th></th>   <th>
+<code>MPC#tanh(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr class="last-header"><th></th>   <th>
+<code>MPC#tanh(options_hash)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr>
+    <td></td><td>
+Return the hyperbolic tangent of the receiver, rounded according to \(rounding\_mode\).
+</td>
+  </tr>
+
+
+<tr class="new-method"><th>
+asin
+</th><th>
+<code>MPC#asin()</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr><th></th>   <th>
+<code>MPC#asin(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr class="last-header"><th></th>   <th>
+<code>MPC#asin(options_hash)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr>
+    <td></td><td>
+Return the inverse sine of the receiver, rounded according to \(rounding\_mode\).
+</td>
+  </tr>
+
+
+<tr class="new-method"><th>
+acos
+</th><th>
+<code>MPC#cosh()</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr><th></th>   <th>
+<code>MPC#acos(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr class="last-header"><th></th>   <th>
+<code>MPC#acos(options_hash)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr>
+    <td></td><td>
+Return the inverse cosine of the receiver, rounded according to \(rounding\_mode\).
+</td>
+  </tr>
+
+
+<tr class="new-method"><th>
+atan
+</th><th>
+<code>MPC#atan()</code> \(\rightarrow\) <em>complex</em>
+</tr>
+  <tr><th></th>   <th>
+<code>MPC#atan(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr class="last-header"><th></th>   <th>
+<code>MPC#atan(options_hash)</code> \(\rightarrow\) <em>complex</em>
+</th></tr>
+  <tr>
+    <td></td><td>
+Return the inverse tangent of the receiver, rounded according to \(rounding\_mode\).
+</td>
+  </tr>
+</table>
+
+
+<h3 id="miscellaneous-complex-functions">Miscellaneous Complex Functions</h3>
+<h3 id="advanced-functions">Advanced Functions</h3>
+<h3 id="internals">Internals</h3>
