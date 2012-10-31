@@ -455,6 +455,7 @@ according to $rounding\_mode$.
   \texttt{a = MPC.new(GMP::F("3.1416", 12)) \#=> (3.1416 +0) \newline
           a + 0 \qqqquad\qqqquad\qquad\qqqquad \#=> (3.1416 +0) \newline
           a + 1 \qqqquad\qqqquad\qqqquad\qquad \#=> (4.1406 +0) \newline
+          a - -7 \qqqquad\qqqquad\qqqquad\quad\  \#=> (-3.8584 +0) \newline
           a + GMP::Z(1024) \qqqquad\qqqquad\  \#=> (1.0270e+3 +0) \newline
           a + 2**66 \qqqquad\qqqquad\qqqquad \#=> (7.3787e+19 +0) \newline
           a + GMP::F("3.1416", 12) \qqqquad\  \#=> (6.2832 +0) \newline}
@@ -472,6 +473,7 @@ according to $rounding\_mode$.
   \texttt{a = MPC.new(GMP::F("3.1416", 12)) \#=> (3.1416 +0) \newline
           a - 0 \qqqquad\qqqquad\qquad\qqqquad \#=> (3.1416 +0) \newline
           a - 1 \qqqquad\qqqquad\qqqquad\qquad \#=> (2.1416 +0) \newline
+          a - -7 \qqqquad\qqqquad\qqqquad\quad\  \#=> (1.0141e+1 +0) \newline
           a - GMP::Z(1024) \qqqquad\qqqquad\  \#=> (-1.0208e+3 +0) \newline
           a - 2**66 \qqqquad\qqqquad\qqqquad \#=> (-7.3787e+19 +0) \newline
           a - GMP::F("3.1416", 12) \qqqquad\  \#=> (+0 +0) \newline}
@@ -489,9 +491,30 @@ according to $rounding\_mode$.
   \texttt{a = MPC.new(GMP::F("3.1416", 12)) \#=> (3.1416 +0) \newline
           a * 0 \qqqquad\qqqquad\qquad\qqqquad \#=> (+0 +0) \newline
           a * 1 \qqqquad\qqqquad\qqqquad\qquad \#=> (3.1416 +0) \newline
+          a * -7 \qqqquad\qqqquad\qqqquad\quad\  \#=> (-2.1992e+1 -0)\newline
           a * GMP::Z(1024) \qqqquad\qqqquad\  \#=> (3.2170e+3 +0) \newline
           a * 2**66 \qqqquad\qqqquad\qqqquad \#=> (2.3181e+20 +0) \newline
           a * GMP::F("3.1416", 12) \qqqquad\  \#=> (9.8711 +0) \newline}
+}
+\end{tabular}
+
+\begin{tabular}{p{\methwidth} l r p{\returnwidth}}
+\toprule
+\textbf{div, /} & & MPC\#div($op2$) & $\rightarrow complex$ \\
+& & MPC\#div($op2$, $rounding\_mode$ = MPC::MPC\_RNDNN) & $\rightarrow complex$ \\
+& & $op1 / op2$ & $\rightarrow complex$ \\
+\cmidrule(r){2-4}
+& \multicolumn{3}{p{\defnwidth}}{
+  Return the quotient of the receiver ($op1$) and $op2$, rounded according to
+  $rounding\_mode$. $op2$ may be a \texttt{Fixnum}, \texttt{GMP::Z}, \texttt{Bignum}, or \texttt{GMP::F}.\newline
+
+  \texttt{a = MPC.new(GMP::F("3.1416", 12)) \#=> (3.1416 +0) \newline
+          a / 0 \qqqquad\qqqquad\qquad\qqqquad \#=> (@Inf@ @NaN@) \newline
+          a / 1 \qqqquad\qqqquad\qqqquad\qquad \#=> (3.1416 +0) \newline
+          a / -7 \qqqquad\qqqquad\qqqquad\quad\  \#=> (-4.4885e-1 -0)\newline
+          a / GMP::Z(1024) \qqqquad\qqqquad\  \#=> (3.0680e-3 +0) \newline
+          a / 2**66 \qqqquad\qqqquad\qqqquad \#=> (4.9088e-2 +0) \newline
+          a / GMP::F("3.1416", 12) \qqqquad\  \#=> (1.0000 +0) \newline}
 }
 \end{tabular}
 
@@ -516,6 +539,7 @@ $rounding\_mode$.
 <pre><code>a = MPC.new(GMP::F("3.1416", 12)) #=> (3.1416 +0)
 a + 0                             #=> (3.1416 +0)
 a + 1                             #=> (4.1406 +0)
+a + -7                            #=> (-3.8584 +0)
 a + GMP::Z(1024)                  #=> (1.0270e+3 +0)
 a + 2**66                         #=> (7.3787e+19 +0)
 a + GMP::F("3.1416", 12)          #=> (6.2832 +0)
@@ -542,6 +566,7 @@ $rounding\_mode$.
 <pre><code>a = MPC.new(GMP::F("3.1416", 12)) #=> (3.1416 +0)
 a - 0                             #=> (3.1416 +0)
 a - 1                             #=> (2.1416 +0)
+a - -7                            #=> (1.0141e+1 +0)
 a - GMP::Z(1024)                  #=> (-1.0208e+3 +0)
 a - 2**66                         #=> (-7.3787e+19 +0)
 a - GMP::F("3.1416", 12)          #=> (+0 +0)
@@ -568,9 +593,37 @@ $rounding\_mode$.
 <pre><code>a = MPC.new(GMP::F("3.1416", 12)) #=> (3.1416 +0)
 a * 0                             #=> (+0 +0)
 a * 1                             #=> (3.1416 +0)
+a * -7                            #=> (-2.1992e+1 -0)
 a * GMP::Z(1024)                  #=> (3.2170e+3 +0)
 a * 2**66                         #=> (2.3181e+20 +0)
 a * GMP::F("3.1416", 12)          #=> (9.8711 +0)
+</code></pre>
+    </td>
+  </tr>
+
+  <tr class="new-method">
+    <th>div, /</th><th>`MPC#div(op2)` $\rightarrow$ _complex_
+  </tr>
+  <tr>
+    <th></th>   <th><code>MPC#div(_op2_, _rounding_mode_ = MPC::MPC_RNDNN)</code> $\rightarrow$ _complex_
+</th>
+  </tr>
+  <tr class="last-header">
+    <th></th>    <th>`op1 / op2` $\rightarrow$ _complex_
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+Return the quotient of the receiver ($op1$) and $op2$, rounded according to
+$rounding\_mode$.
+
+<pre><code>a = MPC.new(GMP::F("3.1416", 12)) #=> (3.1416 +0)
+a / 0                             #=> (@Inf@ @NaN@)
+a / 1                             #=> (3.1416 +0)
+a / -7                            #=> (-4.4885e-1 -0)
+a / GMP::Z(1024)                  #=> (3.0680e-3 +0)
+a / 2**66                         #=> (4.9088e-2 +0)
+a / GMP::F("3.1416", 12)          #=> (1.0000 +0)
 </code></pre>
     </td>
   </tr>
@@ -629,7 +682,16 @@ a * GMP::F("3.1416", 12)          #=> (9.8711 +0)
 
 \toprule
 \textbf{log10} & & MPC\#log10() & $\rightarrow$ \textit{complex} \\
-& \multicolumn{3}{p{\defnwidth}}{\textit{Not implemented yet.}}
+& & MPC\#log10(\textit{rounding\_mode} = MPC::MPC\_RNDNN, & \\
+& & \textit{precision} = \textit{mpfr\_default\_precision}) & $\rightarrow$ \textit{complex} \\
+& & MPC\#log10(\textit{options\_hash}) & $\rightarrow$ \textit{complex} \\
+\cmidrule(r){2-4}
+& \multicolumn{3}{p{\defnwidth}}{
+  Return the base-10 logarithm of the receiver, rounded according to
+  $rounding\_mode$. The principal branch is chosen, with the branch cut on the
+  negative real axis, so that the imaginary part of the result lies in 
+  $[-\pi, \pi]$ and $[-\pi/log(10), \pi/log(10)]$ respectively.
+}
 \end{tabular}
 
 \ifdef{HTML}
@@ -700,14 +762,23 @@ $[-\pi, \pi]$ and $[-\pi/log(10), \pi/log(10)]$ respectively.
     </td>
   </tr>
 
-
-  <tr class="new-method last-header">
-    <th>log10</th><th>`MPC#log10()` $\rightarrow$ _complex_
+  <tr class="new-method">
+    <th>log10</th><th>`MPC#log()` $\rightarrow$ _complex_
+  </tr>
+  <tr>
+    <th></th>   <th><code>MPC#log10(_rounding_mode_ = MPC::MPC_RNDNN, _precision_ = _mpfr_default_)</code> $\rightarrow$ _complex_
+</th>
+  </tr>
+  <tr class="last-header">
+    <th></th>   <th>`MPC#log10(options_hash)` $\rightarrow$ _complex_</th>
   </tr>
   <tr>
     <td></td>
     <td>
-_Not implemented yet._
+Return the base-10 logarithm of the receiver, rounded according to
+$rounding\_mode$. The principal branch is chosen, with the branch cut on the
+negative real axis, so that the imaginary part of the result lies in 
+$[-\pi, \pi]$ and $[-\pi/log(10), \pi/log(10)]$ respectively.
     </td>
   </tr>
 </table>

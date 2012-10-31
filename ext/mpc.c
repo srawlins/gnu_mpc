@@ -850,6 +850,93 @@ VALUE r_mpc_mul_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, m
   return res_val;
 }
 
+VALUE r_mpc_div_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, mpfr_prec_t res_real_prec, mpfr_prec_t res_imag_prec);
+VALUE r_mpc_div(int argc, VALUE *argv, VALUE self_val)
+{
+  MP_COMPLEX *self;
+  VALUE rnd_mode_val;
+  VALUE  res_real_prec_val, res_imag_prec_val;
+  VALUE arg_val;
+
+  mpfr_prec_t real_prec, imag_prec;
+  mpfr_prec_t res_real_prec, res_imag_prec;
+  mpc_rnd_t rnd_mode;
+
+  mpc_get_struct(self_val,self);
+  real_prec = mpfr_get_prec(mpc_realref(self));
+  imag_prec = mpfr_get_prec(mpc_imagref(self));
+
+  //if (argc > 0 && TYPE(argv[0]) == T_HASH) {
+  //  rb_mpc_get_hash_arguments (&rnd_mode, &real_prec, &imag_prec, argv[0]);
+    //res_real_prec = real_prec;
+    //res_imag_prec = imag_prec;
+  //} else {
+    rb_scan_args (argc, argv, "13", &arg_val, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
+
+    r_mpc_set_default_args (rnd_mode_val, res_real_prec_val, res_imag_prec_val,
+                           &rnd_mode,    &res_real_prec,    &res_imag_prec,
+                                              real_prec,         imag_prec);
+  //}
+
+  //return res_val;
+  return r_mpc_div_do_the_work(self_val, arg_val, rnd_mode, res_real_prec, res_imag_prec);
+}
+
+VALUE r_mpc_div2(VALUE self_val, VALUE arg_val)
+{
+  MP_COMPLEX *self;
+
+  mpfr_prec_t res_real_prec, res_imag_prec;
+
+  mpc_get_struct(self_val, self);
+  res_real_prec = mpfr_get_prec(mpc_realref(self));
+  res_imag_prec = mpfr_get_prec(mpc_imagref(self));
+
+  return r_mpc_div_do_the_work(self_val, arg_val, MPC_RNDNN, res_real_prec, res_imag_prec);
+}
+
+VALUE r_mpc_div_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, mpfr_prec_t res_real_prec, mpfr_prec_t res_imag_prec) {
+  MP_COMPLEX *self, *res, *arg_c;
+  MP_INT *arg_z;
+  MP_FLOAT *arg_f;
+  VALUE res_val;
+
+  mpc_get_struct(self_val,self);
+
+  if (FIXNUM_P (arg_val)) {
+    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+    if (FIX2NUM (arg_val) >= 0) {
+      mpc_div_ui (res, self,  FIX2NUM (arg_val), rnd_mode);
+    } else {
+      mpc_div_ui (res, self, -FIX2NUM (arg_val), rnd_mode);
+      mpc_neg (res, res, rnd_mode);
+    }
+  } else if (BIGNUM_P (arg_val)) {
+    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+    mpz_temp_from_bignum (arg_z, arg_val);
+    mpc_set_z (res, arg_z, MPC_RNDNN);
+    mpz_temp_free (arg_z);
+    mpc_div (res, self, res, rnd_mode);
+  } else if (GMPZ_P (arg_val)) {
+    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+    mpz_get_struct (arg_val, arg_z);
+    mpc_set_z (res, arg_z, MPC_RNDNN);
+    mpc_div (res, self, res, rnd_mode);
+  } else if (GMPF_P (arg_val)) {
+    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+    mpf_get_struct (arg_val, arg_f);
+    mpc_div_fr (res, self, arg_f, rnd_mode);
+  } else if (MPC_P (arg_val)) {
+    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+    mpc_get_struct (arg_val, arg_c);
+    mpc_div (res, self, arg_c, rnd_mode);
+  } else {
+    typeerror(FXC);
+  }
+
+  return res_val;
+}
+
 MPC_SINGLE_FUNCTION(neg)
 
 /*
@@ -905,6 +992,34 @@ VALUE r_mpc_abs(int argc, VALUE *argv, VALUE self)
   return abs;
 }
 
+/*
+ * call-seq:
+ *   c.norm
+ *   c.norm(rounding_mode)
+ *
+ * Returns the norm of _c_ (i.e., the square of its absolute value), as a GMP_F float (an MPFR float, really).
+ */
+VALUE r_mpc_norm(int argc, VALUE *argv, VALUE self)
+{
+  MP_COMPLEX *self_val;
+  MP_FLOAT *norm_val;
+  VALUE rnd_mode, norm;
+  mpfr_prec_t pr=0, pi=0;
+  mpc_rnd_t rnd_mode_val;
+
+  mpc_get_struct (self, self_val);
+
+  rb_scan_args (argc, argv, "01", &rnd_mode);
+  if (NIL_P (rnd_mode)) { rnd_mode_val = r_mpc_default_rounding_mode; }
+  else { rnd_mode_val = r_get_mpc_rounding_mode (rnd_mode); }
+
+  mpf_make_struct (norm, norm_val);
+  mpc_get_prec2 (&pr, &pi, self_val);
+  mpfr_init2 (norm_val, pr);
+  mpc_norm (norm_val, self_val, rnd_mode_val);
+  return norm;
+}
+
 /*********************************************************************
  *    Power and Logarithm Functions                                  *
  *********************************************************************/
@@ -912,6 +1027,7 @@ VALUE r_mpc_abs(int argc, VALUE *argv, VALUE self)
 MPC_SINGLE_FUNCTION(sqrt)
 MPC_SINGLE_FUNCTION(exp)
 MPC_SINGLE_FUNCTION(log)
+MPC_SINGLE_FUNCTION(log10)
 
 /*********************************************************************
  *    Trigonometric Functions                                        *
@@ -964,20 +1080,22 @@ void Init_mpc() {
   rb_define_method (cMPC, "proj", r_mpc_proj, -1);
 
   // Basic Arithmetic Functions
-  rb_define_method (cMPC, "add", r_mpc_add,  -1);
-  rb_define_method (cMPC, "+",   r_mpc_add2,  1);
-  rb_define_method (cMPC, "sub", r_mpc_sub,  -1);
-  rb_define_method (cMPC, "-",   r_mpc_sub2,  1);
-  rb_define_method (cMPC, "neg", r_mpc_neg,  -1);
-  rb_define_method (cMPC, "-@",  r_mpc_neg2,  0);
-  rb_define_method (cMPC, "mul", r_mpc_mul,  -1);
-  rb_define_method (cMPC, "*",   r_mpc_mul2,  1);
-  rb_define_method (cMPC, "sqr", r_mpc_sqr, -1);
+  rb_define_method (cMPC, "add",   r_mpc_add,   -1);
+  rb_define_method (cMPC, "+",     r_mpc_add2,   1);
+  rb_define_method (cMPC, "sub",   r_mpc_sub,   -1);
+  rb_define_method (cMPC, "-",     r_mpc_sub2,   1);
+  rb_define_method (cMPC, "neg",   r_mpc_neg,   -1);
+  rb_define_method (cMPC, "-@",    r_mpc_neg2,   0);
+  rb_define_method (cMPC, "mul",   r_mpc_mul,   -1);
+  rb_define_method (cMPC, "*",     r_mpc_mul2,   1);
+  // TODO rb_define_method (cMPC, "mul_i", r_mpc_mul_i, -1);
+  rb_define_method (cMPC, "sqr",   r_mpc_sqr,   -1);
   // TODO rb_define_method (cMPC, "fma", r_mpc_fma, 2);
-  // TODO rb_define_method (cMPC, "/", r_mpc_div, 1);
-  rb_define_method (cMPC, "conj", r_mpc_conj, -1);
-  rb_define_method (cMPC, "abs", r_mpc_abs, -1);
-  // TODO rb_define_method (cMPC, "norm", r_mpc_norm, 0);
+  rb_define_method (cMPC, "div",   r_mpc_div,   -1);
+  rb_define_method (cMPC, "/",     r_mpc_div2,   1);
+  rb_define_method (cMPC, "conj",  r_mpc_conj,  -1);
+  rb_define_method (cMPC, "abs",   r_mpc_abs,   -1);
+  rb_define_method (cMPC, "norm",  r_mpc_norm,  -1);
   // TODO rb_define_method (cMPC, "mul_2exp", r_mpc_mul_2exp, 1);
   // TODO rb_define_method (cMPC, "div_2exp", r_mpc_div_2exp, 1);
 
@@ -986,7 +1104,7 @@ void Init_mpc() {
   // TODO rb_define_method (cMPC, "**", r_mpc_pow, 1);
   rb_define_method (cMPC, "exp", r_mpc_exp, -1);
   rb_define_method (cMPC, "log", r_mpc_log, -1);
-  // TODO rb_define_method (cMPC, "log10", r_mpc_log10, -1);
+  rb_define_method (cMPC, "log10", r_mpc_log10, -1);
 
   // Trigonometric Functions
   rb_define_method (cMPC, "sin", r_mpc_sin, -1);
