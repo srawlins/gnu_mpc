@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "gnu_mpc"
-  s.version = "0.8.0"
+  s.version = "0.8.1"
   s.authors = ["srawlins"]
   s.date = "2012-10-26"
   s.description = "gnu_mpc - providing Ruby bindings to the MPC library."
@@ -19,5 +19,5 @@ Gem::Specification.new do |s|
   s.files += Dir["lib/mpc.rb"]
 
   s.files += Dir["spec/*.rb"]
-  s.files += ["README.md", "manual.md", "manual.pdf", "COPYING.md", "Makefile", "Rakefile", "Gemfile", "Guardfile", "manual_template.latex"]
+  s.files += ["README.md", "CHANGELOG", "manual.md", "manual.pdf", "COPYING.md", "Makefile", "Rakefile", "Gemfile", "Guardfile", "manual_template.latex"]
 end

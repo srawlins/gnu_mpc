@@ -1,0 +1,5 @@
+* v 0.8.1
+  * Added MPC#/, MPC#div
+  * Added MPC#log10
+* v 0.8.0
+  * Most things
