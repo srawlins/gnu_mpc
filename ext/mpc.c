@@ -769,7 +769,7 @@ VALUE r_mpc_mul(int argc, VALUE *argv, VALUE self_val)
 {
   MP_COMPLEX *self;
   VALUE rnd_mode_val;
-  VALUE  res_real_prec_val, res_imag_prec_val;
+  VALUE res_real_prec_val, res_imag_prec_val;
   VALUE arg_val;
 
   mpfr_prec_t real_prec, imag_prec;
@@ -846,6 +846,36 @@ VALUE r_mpc_mul_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, m
   } else {
     typeerror(FXC);
   }
+
+  return res_val;
+}
+
+VALUE r_mpc_mul_i(int argc, VALUE *argv, VALUE self_val)
+{
+  MP_COMPLEX *self, *res;
+  VALUE rnd_mode_val;
+  VALUE res_real_prec_val, res_imag_prec_val;
+  VALUE sign_val, res_val;
+
+  mpfr_prec_t real_prec, imag_prec;
+  mpfr_prec_t res_real_prec, res_imag_prec;
+  mpc_rnd_t rnd_mode;
+
+  mpc_get_struct(self_val,self);
+  real_prec = mpfr_get_prec(mpc_realref(self));
+  imag_prec = mpfr_get_prec(mpc_imagref(self));
+
+  rb_scan_args (argc, argv, "13", &sign_val, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
+
+  r_mpc_set_default_args (rnd_mode_val, res_real_prec_val, res_imag_prec_val,
+                         &rnd_mode,    &res_real_prec,    &res_imag_prec,
+                                            real_prec,         imag_prec);
+
+  if (! FIXNUM_P (sign_val))
+    typeerror(X);
+
+  mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+  mpc_mul_i (res, self, FIX2INT(sign_val), rnd_mode);
 
   return res_val;
 }
@@ -1088,7 +1118,7 @@ void Init_mpc() {
   rb_define_method (cMPC, "-@",    r_mpc_neg2,   0);
   rb_define_method (cMPC, "mul",   r_mpc_mul,   -1);
   rb_define_method (cMPC, "*",     r_mpc_mul2,   1);
-  // TODO rb_define_method (cMPC, "mul_i", r_mpc_mul_i, -1);
+  rb_define_method (cMPC, "mul_i", r_mpc_mul_i, -1);
   rb_define_method (cMPC, "sqr",   r_mpc_sqr,   -1);
   // TODO rb_define_method (cMPC, "fma", r_mpc_fma, 2);
   rb_define_method (cMPC, "div",   r_mpc_div,   -1);

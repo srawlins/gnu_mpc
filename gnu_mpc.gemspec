@@ -1,12 +1,13 @@
 Gem::Specification.new do |s|
   s.name = "gnu_mpc"
-  s.version = "0.8.1"
+  s.version = "0.8.2"
   s.authors = ["srawlins"]
   s.date = "2012-10-26"
   s.description = "gnu_mpc - providing Ruby bindings to the MPC library."
   s.email = ["sam.rawlins@gmail.com"]
 
   s.extensions = ["ext/extconf.rb"]
+  s.add_dependency "gmp", ">=0.5.47")
 
   s.has_rdoc = "yard"
   s.homepage = "http://github.com/srawlins/gnu_mpc"
