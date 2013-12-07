@@ -208,19 +208,19 @@ for optional arguments, after any required arguments. For example, since
 be supplied like so:
 
     MPC.new([1,1]).pow(2, {})
-    MPC.new([0.5, 0.5]).sin({})
+    MPC.new([1,1]).sin({})
 
 Here are the keys typically accepted by an `MPC` instance method.
 
 `:rnd`, `:round`, `:rounding`, `:rounding_mode`
-:   Rounding mode for the operation
+:   rounding mode for the operation
 `:prec`, `:precision`
-:   Precision used when initializing the return value; This precision will be
+:   precision used when initializing the return value; This precision will be
     used for both the real and imaginary parts of the returned complex value.
 `:real_prec`, `:real_precision`
-:   Precision used for the real part of the return value
+:   precision used for the real part of the return value
 `:imag_prec`, `:imag_precision`
-:   Precision used for the imaginary part of the return value
+:   precision used for the imaginary part of the return value
 
 ### Precision of Returned Values
 
@@ -241,7 +241,8 @@ of three ways:
 
 * The user can also specify the precision of the real part, and the imaginary
   part, individually, using the options hash as well. The `:real_prec`,
-  `:real_precision`, `:imag_prec`, and `:imag_precision` keys can be used:
+  (or `:real_precision`) and `:imag_prec` (or `:imag_precision`) keys can be
+  used:
 
         MPC.new(72).sin(:real_prec => 17, :imag_prec => 53)
   The broad `:prec` and `:precision` values are parsed before the real- and
