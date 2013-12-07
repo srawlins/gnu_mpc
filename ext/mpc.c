@@ -25,14 +25,14 @@ VALUE r_mpc_##name(int argc, VALUE *argv, VALUE self_val)                       
 {                                                                                            \
   MP_COMPLEX *self, *res;                                                                    \
   VALUE rnd_mode_val;                                                                        \
-  VALUE  res_real_prec_val, res_imag_prec_val;                                               \
+  VALUE res_real_prec_val, res_imag_prec_val;                                                \
   VALUE res_val;                                                                             \
                                                                                              \
   mpfr_prec_t real_prec, imag_prec;                                                          \
   mpfr_prec_t res_real_prec, res_imag_prec;                                                  \
   mpc_rnd_t rnd_mode;                                                                        \
                                                                                              \
-  mpc_get_struct(self_val,self);                                                             \
+  mpc_get_struct(self_val, self);                                                            \
   real_prec = mpfr_get_prec(mpc_realref(self));                                              \
   imag_prec = mpfr_get_prec(mpc_imagref(self));                                              \
                                                                                              \
@@ -345,7 +345,6 @@ void mpc_set_value(MP_COMPLEX *self_val, VALUE arg, mpc_rnd_t rnd)
   MP_FLOAT   *arg_val_f, *arg_val_f_im;
   MP_COMPLEX *arg_val_c;
   VALUE arg_re, arg_im;
-  int result;
 
   if (FIXNUM_P (arg)) {
     mpc_set_si(self_val, FIX2NUM (arg), rnd);
@@ -497,73 +496,62 @@ VALUE r_mpc_cmp(VALUE self, VALUE arg)
  * MPC as self, calls mpc_fname on the contained mpc_t, whose
  * arguments are exactly (0) the return argument (an mpfr_t), (1) self,
  * and (2) the rounding mode.
- *
- * TODO FINISH!!!
  */
-#define DEFUN_COMPLEX2FLOAT(fname,mpz_fname)                   \
-static VALUE r_mpc_##fname(int argc, VALUE *argv, VALUE self)  \
-{                                                              \
-  MP_COMPLEX *self_val;                                        \
-  MP_FLOAT *res_val;                                           \
-  VALUE rnd_mode, res_prec, res;                               \
-  mpfr_prec_t prec, res_prec_value;                            \
-  mpc_rnd_t rnd_mode_val;                                      \
+#define DEFUN_COMPLEX2FLOAT(fname, prec_src)                                 \
+static VALUE r_mpc_##fname(int argc, VALUE *argv, VALUE self_val)            \
+{                                                                            \
+  MP_COMPLEX *self;                                                          \
+  MP_FLOAT *res;                                                             \
+  VALUE rnd_mode_val, res_val, res_prec_val;                                 \
+                                                                             \
+  mpfr_prec_t real_prec, imag_prec;                                          \
+  mpfr_prec_t res_prec;                                                      \
+  mpc_rnd_t rnd_mode;                                                        \
+                                                                             \
+  mpc_get_struct(self_val, self);                                            \
+  real_prec = mpfr_get_prec(mpc_realref(self));                              \
+  imag_prec = mpfr_get_prec(mpc_imagref(self));                              \
+                                                                             \
+  if (argc > 0 && TYPE(argv[0]) == T_HASH) {                                 \
+    rb_mpc_get_hash_arguments (&rnd_mode, &real_prec, &imag_prec, argv[0]);  \
+    res_prec = prec_src;                                                     \
+  } else {                                                                   \
+    rb_scan_args (argc, argv, "02", &rnd_mode_val, &res_prec_val);           \
+                                                                             \
+    if (NIL_P (rnd_mode_val)) { rnd_mode = __gmp_default_rounding_mode; }    \
+    else { rnd_mode = r_mpc_get_rounding_mode(rnd_mode_val); }               \
+                                                                             \
+    if (NIL_P (res_prec_val)) { res_prec = prec_src; }                       \
+    else { res_prec = FIX2INT(res_prec_val); }                               \
+  }                                                                          \
+                                                                             \
+  mpf_make_struct (res_val, res);                                            \
+  mpfr_init2 (res, res_prec);                                                \
+  mpc_##fname (res, self, rnd_mode);                                         \
+                                                                             \
+  return res_val;                                                            \
+}
+
 
 /*
  * call-seq:
  *   c.real
  *   c.real(rounding_mode)
+ *   c.real(rounding_mode, precision)
  *
  * Returns the real part of _c_ as a GMP_F float (an MPFR float, really).
  */
-VALUE r_mpc_real(int argc, VALUE *argv, VALUE self)
-{
-  MP_COMPLEX *self_val;
-  MP_FLOAT *real_val;
-  VALUE rnd_mode, real;
-  mpfr_prec_t pr=0, pi=0;
-  mpc_rnd_t rnd_mode_val;
-
-  mpc_get_struct (self, self_val);
-
-  rb_scan_args (argc, argv, "01", &rnd_mode);
-  if (NIL_P (rnd_mode)) { rnd_mode_val = r_mpc_default_rounding_mode; }
-  else { rnd_mode_val = r_get_mpc_rounding_mode (rnd_mode); }
-
-  mpf_make_struct (real, real_val);
-  mpc_get_prec2 (&pr, &pi, self_val);
-  mpfr_init2 (real_val, pr);
-  mpc_real (real_val, self_val, rnd_mode_val);
-  return real;
-}
+DEFUN_COMPLEX2FLOAT(real, real_prec)
 
 /*
  * call-seq:
  *   c.imag
  *   c.imag(rounding_mode)
+ *   c.imag(rounding_mode, precision)
  *
  * Returns the imaginary part of _c_ as a GMP_F float (an MPFR float, really).
  */
-VALUE r_mpc_imag(int argc, VALUE *argv, VALUE self)
-{
-  MP_COMPLEX *self_val;
-  MP_FLOAT *imag_val;
-  VALUE rnd_mode, imag;
-  mpfr_prec_t pr=0, pi=0;
-  mpc_rnd_t rnd_mode_val;
-
-  mpc_get_struct (self, self_val);
-
-  rb_scan_args (argc, argv, "01", &rnd_mode);
-  if (NIL_P (rnd_mode)) { rnd_mode_val = r_mpc_default_rounding_mode; }
-  else { rnd_mode_val = r_get_mpc_rounding_mode(rnd_mode); }
-
-  mpf_make_struct (imag, imag_val);
-  mpc_get_prec2 (&pr, &pi, self_val);
-  mpfr_init2 (imag_val, pr);
-  mpc_imag (imag_val, self_val, rnd_mode_val);
-  return imag;
-}
+DEFUN_COMPLEX2FLOAT(imag, imag_prec)
 
 MPC_SINGLE_FUNCTION(proj)
 
@@ -1106,7 +1094,7 @@ void Init_mpc() {
   // Projection and Decomposing Functions
   rb_define_method (cMPC, "real", r_mpc_real, -1);
   rb_define_method (cMPC, "imag", r_mpc_imag, -1);
-  // TODO rb_define_method (cMPC, "arg", r_mpc_arg, 0);
+  //rb_define_method (cMPC, "arg",  r_mpc_arg,  -1);
   rb_define_method (cMPC, "proj", r_mpc_proj, -1);
 
   // Basic Arithmetic Functions
