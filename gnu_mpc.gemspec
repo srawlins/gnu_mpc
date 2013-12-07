@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.email = ["sam.rawlins@gmail.com"]
 
   s.extensions = ["ext/extconf.rb"]
-  s.add_dependency "gmp", ">=0.5.47")
+  s.add_dependency "gmp", ">=0.5.47"
 
   s.has_rdoc = "yard"
   s.homepage = "http://github.com/srawlins/gnu_mpc"
