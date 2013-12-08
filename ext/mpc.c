@@ -1077,7 +1077,7 @@ MPC_SINGLE_FUNCTION(log10)
  *   z.sin(rounding_mode)
  *
  * Returns _sin(z)_, rounded according to `rounding_mode`.
- * s3
+ *
  */
 MPC_SINGLE_FUNCTION(sin)
 MPC_SINGLE_FUNCTION(cos)
@@ -1088,6 +1088,52 @@ MPC_SINGLE_FUNCTION(tanh)
 MPC_SINGLE_FUNCTION(asin)
 MPC_SINGLE_FUNCTION(acos)
 MPC_SINGLE_FUNCTION(atan)
+
+/*
+ * call-seq:
+ *   a.fma(b, c)
+ *   a.fma(b, c, rounding_mode)
+ *
+ * Returns _a*b + c_, rounded according to `rounding_mode`, not rounding until
+ * the final calculation.
+ *
+ */
+VALUE r_mpc_fma(int argc, VALUE *argv, VALUE self_val)
+{
+  MP_COMPLEX *self, *arg1, *arg2, *res;
+  VALUE rnd_mode_val;
+  VALUE res_real_prec_val, res_imag_prec_val;
+  VALUE arg1_val, arg2_val, res_val;
+
+  mpfr_prec_t real_prec, imag_prec;
+  mpfr_prec_t res_real_prec, res_imag_prec;
+  mpc_rnd_t rnd_mode;
+
+  mpc_get_struct (self_val, self);
+  real_prec = mpfr_get_prec (mpc_realref (self));
+  imag_prec = mpfr_get_prec (mpc_imagref (self));
+
+  if (argc > 2 && TYPE(argv[2]) == T_HASH) {
+    rb_scan_args (argc, argv, "21", &arg1_val, &arg2_val, &rnd_mode_val);
+
+    rb_mpc_get_hash_arguments (&rnd_mode, &real_prec, &imag_prec, argv[2]);
+    res_real_prec = real_prec;
+    res_imag_prec = imag_prec;
+  } else {
+    rb_scan_args (argc, argv, "23", &arg1_val, &arg2_val, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
+
+    r_mpc_set_default_args (rnd_mode_val, res_real_prec_val, res_imag_prec_val,
+                           &rnd_mode,    &res_real_prec,    &res_imag_prec,
+                                              real_prec,         imag_prec);
+  }
+
+  mpc_get_struct (arg1_val, arg1);
+  mpc_get_struct (arg2_val, arg2);
+  mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+  mpc_fma (res, self, arg1, arg2, rnd_mode);
+
+  return res_val;
+}
 
 void Init_mpc() {
   cMPC = rb_define_class ("MPC", rb_cNumeric);
@@ -1128,7 +1174,7 @@ void Init_mpc() {
   rb_define_method (cMPC, "*",     r_mpc_mul2,   1);
   rb_define_method (cMPC, "mul_i", r_mpc_mul_i, -1);
   rb_define_method (cMPC, "sqr",   r_mpc_sqr,   -1);
-  // TODO rb_define_method (cMPC, "fma", r_mpc_fma, 2);
+  rb_define_method (cMPC, "fma",   r_mpc_fma,   -1);
   rb_define_method (cMPC, "div",   r_mpc_div,   -1);
   rb_define_method (cMPC, "/",     r_mpc_div2,   1);
   rb_define_method (cMPC, "conj",  r_mpc_conj,  -1);

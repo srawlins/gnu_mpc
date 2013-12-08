@@ -16,6 +16,17 @@ MPC#arg    # argument
 MPC#proj   # projection
 ```
 
+Basic Arithmetic Methods
+------------------------
+
+```ruby
+MPC#add(w)    # add with w
+MPC#sub(w)    # difference with w
+MPC#mul(w)    # multiply with w
+MPC#div(w)    # divide by w
+MPC#fma(w,x)  # multiple by w, then add with x
+```
+
 Trigonometric Methods
 ---------------------
 
