@@ -266,6 +266,7 @@ VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
   //           OR argv[0] is value, argv[1] is rnd
   if (argc >= 2) {
     if (FIXNUM_P (argv[1])) {
+      // TODO I think this actually needs to be >= 2; MPC.new(1,1) crashes
       if (FIX2INT (argv[1]) >= 0)
         prec = FIX2INT (argv[1]);
       else {
