@@ -102,20 +102,20 @@ make</code></pre>
 <h3 id="standard-options-hash-keys">Standard Options Hash Keys</h3>
 <p>Unless otherwise noted, each <code>MPC</code> instance method will accept an options hash for optional arguments, after any required arguments. For example, since <code>MPC#pow</code> requires one argument but <code>MPC#sin</code> requires none, options hashes can be supplied like so:</p>
 <pre><code>MPC.new([1,1]).pow(2, {})
-MPC.new([0.5, 0.5]).sin({})</code></pre>
+MPC.new([1,1]).sin({})</code></pre>
 <p>Here are the keys typically accepted by an <code>MPC</code> instance method.</p>
 <dl>
 <dt><code>:rnd</code>, <code>:round</code>, <code>:rounding</code>, <code>:rounding_mode</code></dt>
-<dd>Rounding mode for the operation
+<dd>rounding mode for the operation
 </dd>
 <dt><code>:prec</code>, <code>:precision</code></dt>
-<dd>Precision used when initializing the return value; This precision will be used for both the real and imaginary parts of the returned complex value.
+<dd>precision used when initializing the return value; This precision will be used for both the real and imaginary parts of the returned complex value.
 </dd>
 <dt><code>:real_prec</code>, <code>:real_precision</code></dt>
-<dd>Precision used for the real part of the return value
+<dd>precision used for the real part of the return value
 </dd>
 <dt><code>:imag_prec</code>, <code>:imag_precision</code></dt>
-<dd>Precision used for the imaginary part of the return value
+<dd>precision used for the imaginary part of the return value
 </dd>
 </dl>
 <h3 id="precision-of-returned-values">Precision of Returned Values</h3>
@@ -125,7 +125,7 @@ MPC.new([0.5, 0.5]).sin({})</code></pre>
 <li><p>Most methods accept an options hash as well. The user can pass in a perferred precision using the <code>:prec</code> or <code>:precision</code> keys, like so:</p>
 <pre><code>MPC.new(5).sin(:prec =&gt; 64)
 MPC.new([7,11]).exp(:precision =&gt; 128)</code></pre></li>
-<li><p>The user can also specify the precision of the real part, and the imaginary part, individually, using the options hash as well. The <code>:real_prec</code>, <code>:real_precision</code>, <code>:imag_prec</code>, and <code>:imag_precision</code> keys can be used:</p>
+<li><p>The user can also specify the precision of the real part, and the imaginary part, individually, using the options hash as well. The <code>:real_prec</code>, (or <code>:real_precision</code>) and <code>:imag_prec</code> (or <code>:imag_precision</code>) keys can be used:</p>
 <pre><code>MPC.new(72).sin(:real_prec =&gt; 17, :imag_prec =&gt; 53)</code></pre>
 <p>The broad <code>:prec</code> and <code>:precision</code> values are parsed before the real- and imaginary-specific values, so that</p>
 <pre><code>my_usual_options = {:rounding =&gt; MPC::MPC_RNDZZ, :prec =&gt; 64}
@@ -192,7 +192,7 @@ real
 </tr>
   <tr class="last-header">
     <th></th>   <th>
-<code>MPC#real(<em>rounding_mode</em> = MPC::MPC_RNDNN)</code> \(\rightarrow\) <em>GMP::F</em>
+<code>MPC#real(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>GMP::F</em>
 </th>
   </tr>
   <tr>
@@ -211,7 +211,7 @@ imag
 </tr>
   <tr class="last-header">
     <th></th>   <th>
-<code>MPC#imag(<em>rounding_mode</em> = MPC::MPC_RNDNN)</code> \(\rightarrow\) <em>GMP::F</em>
+<code>MPC#imag(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>GMP::F</em>
 </th>
   </tr>
   <tr>
@@ -224,13 +224,32 @@ Return the imaginary part of the receiver, rounded according to \(rounding\_mode
 
 <tr class="new-method">
     <th>
+arg
+</th><th>
+<code>MPC#arg()</code> \(\rightarrow\) <em>GMP::F</em>
+</tr>
+  <tr class="last-header">
+    <th></th>   <th>
+<code>MPC#arg(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>GMP::F</em>
+</th>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+Return the argument of the receiver, rounded according to \(rounding\_mode\).
+</td>
+  </tr>
+
+
+<tr class="new-method">
+    <th>
 proj
 </th><th>
-<code>MPC#proj()</code> \(\rightarrow\) <em>GMP::F</em>
+<code>MPC#proj()</code> \(\rightarrow\) <em>MPC</em>
 </tr>
   <tr>
     <th></th>   <th>
-<code>MPC#proj(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>GMP::F</em>
+<code>MPC#proj(<em>rounding_mode</em> = MPC::MPC_RNDNN, <em>precision</em> = <em>mpfr_default</em>)</code> \(\rightarrow\) <em>MPC</em>
 </th>
   </tr>
   <tr class="last-header">

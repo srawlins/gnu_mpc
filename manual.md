@@ -357,7 +357,8 @@ MPC.new(GMP::Z.new(31))  #=> 31 (GMP Integer)
 \begin{tabular}{p{\methwidth} l r p{\returnwidth}}
 \toprule
 \textbf{real} & & MPC\#real() & $\rightarrow$ \textit{GMP::F} \\
-& & MPC\#real(\textit{rounding\_mode} = MPC::MPC\_RNDNN) & $\rightarrow$ \textit{GMP::F} \\
+& & MPC\#real(\textit{rounding\_mode} = MPC::MPC\_RNDNN, & \\
+& & \textit{precision} = \textit{mpfr\_default\_precision}) & $\rightarrow$ \textit{GMP::F} \\
 \cmidrule(r){2-4}
 & \multicolumn{3}{p{\defnwidth}}{
   Return the real part of the receiver, rounded according to
@@ -366,7 +367,8 @@ MPC.new(GMP::Z.new(31))  #=> 31 (GMP Integer)
 
 \toprule
 \textbf{imag} & & MPC\#imag() & $\rightarrow$ \textit{GMP::F} \\
-& & MPC\#imag(\textit{rounding\_mode} = MPC::MPC\_RNDNN) & $\rightarrow$ \textit{GMP::F} \\
+& & MPC\#imag(\textit{rounding\_mode} = MPC::MPC\_RNDNN, & \\
+& & \textit{precision} = \textit{mpfr\_default\_precision}) & $\rightarrow$ \textit{GMP::F} \\
 \cmidrule(r){2-4}
 & \multicolumn{3}{p{\defnwidth}}{
   Return the imaginary part of the receiver, rounded according to
@@ -374,9 +376,18 @@ MPC.new(GMP::Z.new(31))  #=> 31 (GMP Integer)
 } \\
 
 \toprule
-\textbf{proj} & & MPC\#proj() & $\rightarrow$ \textit{GMP::F} \\
-& & MPC\#proj(\textit{rounding\_mode} = MPC::MPC\_RNDNN, & \\
+\textbf{arg} & & MPC\#arg() & $\rightarrow$ \textit{GMP::F} \\
+& & MPC\#arg(\textit{rounding\_mode} = MPC::MPC\_RNDNN, & \\
 & & \textit{precision} = \textit{mpfr\_default\_precision}) & $\rightarrow$ \textit{GMP::F} \\
+\cmidrule(r){2-4}
+& \multicolumn{3}{p{\defnwidth}}{
+  Return the argument of the receiver, rounded according to $rounding\_mode$.
+} \\
+
+\toprule
+\textbf{proj} & & MPC\#proj() & $\rightarrow$ \textit{MPC} \\
+& & MPC\#proj(\textit{rounding\_mode} = MPC::MPC\_RNDNN, & \\
+& & \textit{precision} = \textit{mpfr\_default\_precision}) & $\rightarrow$ \textit{MPC} \\
 \cmidrule(r){2-4}
 & \multicolumn{3}{p{\defnwidth}}{
   Return the projection of the receiver onto the Riemann sphere, rounded according to
@@ -390,7 +401,7 @@ MPC.new(GMP::Z.new(31))  #=> 31 (GMP Integer)
     <th>real</th><th>`MPC#real()` $\rightarrow$ _GMP::F_
   </tr>
   <tr class="last-header">
-    <th></th>   <th><code>MPC#real(_rounding_mode_ = MPC::MPC_RNDNN)</code> $\rightarrow$ _GMP::F_
+    <th></th>   <th><code>MPC#real(_rounding_mode_ = MPC::MPC_RNDNN, _precision_ = _mpfr_default_)</code> $\rightarrow$ _GMP::F_
 </th>
   </tr>
   <tr>
@@ -404,7 +415,7 @@ Return the real part of the receiver, rounded according to $rounding\_mode$.
     <th>imag</th><th>`MPC#imag()` $\rightarrow$ _GMP::F_
   </tr>
   <tr class="last-header">
-    <th></th>   <th><code>MPC#imag(_rounding_mode_ = MPC::MPC_RNDNN)</code> $\rightarrow$ _GMP::F_
+    <th></th>   <th><code>MPC#imag(_rounding_mode_ = MPC::MPC_RNDNN, _precision_ = _mpfr_default_)</code> $\rightarrow$ _GMP::F_
 </th>
   </tr>
   <tr>
@@ -415,10 +426,24 @@ Return the imaginary part of the receiver, rounded according to $rounding\_mode$
   </tr>
 
   <tr class="new-method">
-    <th>proj</th><th>`MPC#proj()` $\rightarrow$ _GMP::F_
+    <th>arg</th><th>`MPC#arg()` $\rightarrow$ _GMP::F_
+  </tr>
+  <tr class="last-header">
+    <th></th>   <th><code>MPC#arg(_rounding_mode_ = MPC::MPC_RNDNN, _precision_ = _mpfr_default_)</code> $\rightarrow$ _GMP::F_
+</th>
   </tr>
   <tr>
-    <th></th>   <th><code>MPC#proj(_rounding_mode_ = MPC::MPC_RNDNN, _precision_ = _mpfr_default_)</code> $\rightarrow$ _GMP::F_
+    <td></td>
+    <td>
+Return the argument of the receiver, rounded according to $rounding\_mode$.
+    </td>
+  </tr>
+
+  <tr class="new-method">
+    <th>proj</th><th>`MPC#proj()` $\rightarrow$ _MPC_
+  </tr>
+  <tr>
+    <th></th>   <th><code>MPC#proj(_rounding_mode_ = MPC::MPC_RNDNN, _precision_ = _mpfr_default_)</code> $\rightarrow$ _MPC_
 </th>
   </tr>
   <tr class="last-header">

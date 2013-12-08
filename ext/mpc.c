@@ -553,6 +553,26 @@ DEFUN_COMPLEX2FLOAT(real, real_prec)
  */
 DEFUN_COMPLEX2FLOAT(imag, imag_prec)
 
+/*
+ * call-seq:
+ *   c.arg
+ *   c.arg(rounding_mode)
+ *   c.arg(rounding_mode, precision)
+ *
+ * Returns the argument of _c_ (with a branch cut along the negative real axis)
+ * as a GMP_F float (an MPFR float, really).
+ */
+DEFUN_COMPLEX2FLOAT(arg, real_prec)
+
+/*
+ * call-seq:
+ *   c.proj
+ *   c.proj(rounding_mode)
+ *   c.proj(rounding_mode, precision)
+ *
+ * Returns the projection of _c_ onto the Riemann sphere as a GMP_F float (an
+ * MPFR float, really).
+ */
 MPC_SINGLE_FUNCTION(proj)
 
 /*********************************************************************
@@ -1094,7 +1114,7 @@ void Init_mpc() {
   // Projection and Decomposing Functions
   rb_define_method (cMPC, "real", r_mpc_real, -1);
   rb_define_method (cMPC, "imag", r_mpc_imag, -1);
-  //rb_define_method (cMPC, "arg",  r_mpc_arg,  -1);
+  rb_define_method (cMPC, "arg",  r_mpc_arg,  -1);
   rb_define_method (cMPC, "proj", r_mpc_proj, -1);
 
   // Basic Arithmetic Functions

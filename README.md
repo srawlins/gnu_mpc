@@ -12,6 +12,7 @@ Projection and Decomposing Methods
 ```ruby
 MPC#real   # real part
 MPC#imag   # imaginary part
+MPC#arg    # argument
 MPC#proj   # projection
 ```
 
