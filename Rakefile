@@ -15,6 +15,13 @@ task :make => [:extconf] do
   sh "cd ext && make"
 end
 
+task :console do
+  require 'irb'
+  require File.join(File.dirname(__FILE__), 'lib', 'mpc')
+  ARGV.clear
+  IRB.start
+end
+
 task :default => [:spec]
 
 desc "Run all specs"

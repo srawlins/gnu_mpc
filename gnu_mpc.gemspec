@@ -20,5 +20,8 @@ Gem::Specification.new do |s|
   s.files += Dir["lib/mpc.rb"]
 
   s.files += Dir["spec/*.rb"]
-  s.files += ["README.md", "CHANGELOG", "manual.md", "manual.pdf", "COPYING.md", "Makefile", "Rakefile", "Gemfile", "Guardfile", "manual_template.latex"]
+  s.files += ["README.md", "CHANGELOG", "COPYING.md"]
+  s.files += ["manual.md", "manual.pdf", "manual_template.latex"]
+  s.files += ["Makefile", "Rakefile", "Gemfile", "Guardfile"]
+  s.files += [".yardopts", ".rspec"]
 end
