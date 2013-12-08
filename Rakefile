@@ -22,11 +22,12 @@ task :console do
   IRB.start
 end
 
-task :default => [:spec]
-
 desc "Run all specs"
 RSpec::Core::RakeTask.new(:spec) do |t|
 end
+
+task :default => [:ci]
+task :ci => [:make, :spec]
 
 namespace :dependencies do
   task :list do
