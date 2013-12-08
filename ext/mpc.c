@@ -369,6 +369,7 @@ void mpc_set_value(MP_COMPLEX *self_val, VALUE arg, mpc_rnd_t rnd)
       //rb_raise(rb_eArgError, "Value Array must contain exactly two elements, the real value, and the imaginary value.");
     arg_re = rb_ary_shift(arg);
     arg_im = rb_ary_shift(arg);
+    // TODO allow different classes for re and im args
     if (FIXNUM_P (arg_re) && FIXNUM_P (arg_im)) {
       mpc_set_si_si (self_val, FIX2NUM (arg_re), FIX2NUM (arg_im), rnd);
     } else if (FLOAT_P (arg_re) && FLOAT_P (arg_im)) {
