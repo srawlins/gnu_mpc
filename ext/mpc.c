@@ -76,16 +76,22 @@ void r_mpc_set_default_args (VALUE rnd_mode_val,    VALUE res_real_prec_val,    
 }
 
 void rb_mpc_get_hash_arguments(mpc_rnd_t *rnd_mode, mpfr_prec_t *real_prec, mpfr_prec_t *imag_prec, VALUE hash) {
-  VALUE rnd_mode_val;
-  VALUE real_prec_val;
-  VALUE rounding_mode_sym, rounding_sym, round_sym, rnd_sym;
-  VALUE precision_sym, prec_sym;
-  rounding_mode_sym = ID2SYM(rb_intern("rounding_mode"));
-  rounding_sym      = ID2SYM(rb_intern("rounding"));
-  round_sym         = ID2SYM(rb_intern("round"));
-  rnd_sym           = ID2SYM(rb_intern("rnd"));
-  precision_sym     = ID2SYM(rb_intern("precision"));
-  prec_sym          = ID2SYM(rb_intern("prec"));
+  VALUE rnd_mode_val,
+        real_prec_val, imag_prec_val,
+        rounding_mode_sym, rounding_sym, round_sym, rnd_sym,
+        precision_sym, prec_sym,
+        real_precision_sym, real_prec_sym, imag_precision_sym, imag_prec_sym;
+
+  rounding_mode_sym  = ID2SYM(rb_intern("rounding_mode"));
+  rounding_sym       = ID2SYM(rb_intern("rounding"));
+  round_sym          = ID2SYM(rb_intern("round"));
+  rnd_sym            = ID2SYM(rb_intern("rnd"));
+  precision_sym      = ID2SYM(rb_intern("precision"));
+  prec_sym           = ID2SYM(rb_intern("prec"));
+  real_precision_sym = ID2SYM(rb_intern("real_precision"));
+  real_prec_sym      = ID2SYM(rb_intern("real_prec"));
+  imag_precision_sym = ID2SYM(rb_intern("imag_precision"));
+  imag_prec_sym      = ID2SYM(rb_intern("imag_prec"));
 
   rnd_mode_val = rb_hash_aref(hash, rounding_mode_sym);
   if (rnd_mode_val == Qnil) { rnd_mode_val = rb_hash_aref(hash, rounding_sym); }
@@ -97,14 +103,22 @@ void rb_mpc_get_hash_arguments(mpc_rnd_t *rnd_mode, mpfr_prec_t *real_prec, mpfr
     *rnd_mode = __gmp_default_rounding_mode;
   }
 
-  /* TODO: allow prec */
-  /* TODO: allow real_prec, imag_prec */
-  real_prec_val = rb_hash_aref(hash, precision_sym);
-  if (real_prec_val == Qnil) { real_prec_val = rb_hash_aref(hash, prec_sym); }
+  real_prec_val = rb_hash_aref (hash, precision_sym);
+  if (real_prec_val == Qnil) { real_prec_val = rb_hash_aref (hash, prec_sym); }
   if (real_prec_val != Qnil) {
+    /* TODO: raise if not Fixnum */
     *real_prec = FIX2INT (real_prec_val);
     *imag_prec = FIX2INT (real_prec_val);
   } else {
+    /* TODO: raise if not Fixnum */
+    real_prec_val = rb_hash_aref (hash, real_precision_sym);
+    if (real_prec_val == Qnil) { real_prec_val = rb_hash_aref (hash, real_prec_sym); }
+    if (real_prec_val != Qnil) { *real_prec = FIX2INT (real_prec_val); }
+
+    /* TODO: raise if not Fixnum */
+    imag_prec_val = rb_hash_aref (hash, imag_precision_sym);
+    if (imag_prec_val == Qnil) { imag_prec_val = rb_hash_aref (hash, imag_prec_sym); }
+    if (imag_prec_val != Qnil) { *imag_prec = FIX2INT (imag_prec_val); }
   }
 
   /* TODO: disallow any other args. Throw a fit. */
