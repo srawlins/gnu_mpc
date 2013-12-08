@@ -7,7 +7,7 @@ describe "MPC_SINGLE_FUNCTION args" do
       :sinh, :cosh, :tanh,
       :asin, :acos, :atan
     ]
-    @z = MPC.new(0,0)
+    @z = MPC.new(0)
   end
   it "should accept no arguments" do
     @functions.each do |func|

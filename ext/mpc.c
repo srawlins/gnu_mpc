@@ -1066,7 +1066,9 @@ VALUE r_mpc_norm(int argc, VALUE *argv, VALUE self)
 MPC_SINGLE_FUNCTION(sqrt)
 MPC_SINGLE_FUNCTION(exp)
 MPC_SINGLE_FUNCTION(log)
+#if MPC_VERSION_MAJOR > 0
 MPC_SINGLE_FUNCTION(log10)
+#endif
 
 /*********************************************************************
  *    Trigonometric Functions                                        *
@@ -1189,7 +1191,9 @@ void Init_mpc() {
   // TODO rb_define_method (cMPC, "**", r_mpc_pow, 1);
   rb_define_method (cMPC, "exp", r_mpc_exp, -1);
   rb_define_method (cMPC, "log", r_mpc_log, -1);
+#if MPC_VERSION_MAJOR > 0
   rb_define_method (cMPC, "log10", r_mpc_log10, -1);
+#endif
 
   // Trigonometric Functions
   rb_define_method (cMPC, "sin", r_mpc_sin, -1);
