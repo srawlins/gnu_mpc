@@ -9,80 +9,80 @@ describe MPC, '#initialize without precision or rounding args' do
     @f1 = GMP::F(1.5)
     @f2 = GMP::F(-2.5)
   end
-  it 'should not raise anything when initialized with no args' do
+  it 'does not raise anything when initialized with no args' do
     expect { MPC.new() }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with 0' do
+  it 'does not raise anything when initialized with 0' do
     expect { MPC.new(0) }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with a negative Fixnum' do
+  it 'does not raise anything when initialized with a negative Fixnum' do
     expect { MPC.new(-32) }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with a positive Fixnum' do
+  it 'does not raise anything when initialized with a positive Fixnum' do
     expect { MPC.new(32) }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with 0.0' do
+  it 'does not raise anything when initialized with 0.0' do
     expect { MPC.new(0.0) }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with a positive Float' do
+  it 'does not raise anything when initialized with a positive Float' do
     expect { MPC.new(3.14) }.to_not raise_error
     expect { MPC.new(1.618) }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with a positive GMP::Z' do
+  it 'does not raise anything when initialized with a positive GMP::Z' do
     expect { MPC.new(@z1) }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with a negative GMP::Z' do
+  it 'does not raise anything when initialized with a negative GMP::Z' do
     expect { MPC.new(@z2) }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with a positive GMP::Q' do
+  it 'does not raise anything when initialized with a positive GMP::Q' do
     expect { MPC.new(@q1) }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with a negative GMP::Q' do
+  it 'does not raise anything when initialized with a negative GMP::Q' do
     expect { MPC.new(@q2) }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with a positive GMP::F' do
+  it 'does not raise anything when initialized with a positive GMP::F' do
     expect { MPC.new(@f1) }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with a negative GMP::F' do
+  it 'does not raise anything when initialized with a negative GMP::F' do
     expect { MPC.new(@f2) }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with an Array of 0\'s' do
+  it 'does not raise anything when initialized with an Array of 0\'s' do
     expect { MPC.new([0,0]) }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with an Array of Fixnum\'s' do
+  it 'does not raise anything when initialized with an Array of Fixnum\'s' do
     expect { MPC.new([-2**10, 2**11]) }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with an Array of Float\'s' do
+  it 'does not raise anything when initialized with an Array of Float\'s' do
     expect { MPC.new([1.4142135623730951, 1.4142135623730951]) }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with an Array of GMP::Z\'s' do
+  it 'does not raise anything when initialized with an Array of GMP::Z\'s' do
     expect { MPC.new([@z1, @z2]) }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with an Array of GMP::Q\'s' do
+  it 'does not raise anything when initialized with an Array of GMP::Q\'s' do
     expect { MPC.new([@q1, @q2]) }.to_not raise_error
   end
 
-  it 'should not raise anything when initialized with an Array of GMP::F\'s' do
+  it 'does not raise anything when initialized with an Array of GMP::F\'s' do
     expect { MPC.new([@f1, @f2]) }.to_not raise_error
   end
 
-  it 'should raise TypeError when initialized with an Array of mixed types' do
+  it 'raises TypeError when initialized with an Array of mixed types' do
     expect { MPC.new([0, 0.0]) }.to raise_error(TypeError)
     expect { MPC.new([0, @z1]) }.to raise_error(TypeError)
     expect { MPC.new([@f1, 0.0]) }.to raise_error(TypeError)
@@ -90,8 +90,14 @@ describe MPC, '#initialize without precision or rounding args' do
     expect { MPC.new([@q1, 42]) }.to raise_error(TypeError)
   end
 
-  it 'should initialize default values correctly' do
-    MPC.new(0).should eq MPC.new()
-    MPC.new(0.0).should eq MPC.new()
+  it 'initializes default values correctly' do
+    expect(MPC.new(0)).to eq MPC.new()
+    expect(MPC.new(0.0)).to eq MPC.new()
+  end
+
+  it 'raises when the precision is out-of-bounds' do
+    expect { MPC.new(0, -1) }.to raise_error(RangeError)
+    expect { MPC.new(0, 0) }.to raise_error(RangeError)
+    expect { MPC.new(0, 1) }.to raise_error(RangeError)
   end
 end

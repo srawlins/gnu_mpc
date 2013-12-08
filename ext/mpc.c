@@ -266,12 +266,11 @@ VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
   //           OR argv[0] is value, argv[1] is rnd
   if (argc >= 2) {
     if (FIXNUM_P (argv[1])) {
-      // TODO I think this actually needs to be >= 2; MPC.new(1,1) crashes
-      if (FIX2INT (argv[1]) >= 0)
+      if (FIX2INT (argv[1]) >= 2)
         prec = FIX2INT (argv[1]);
       else {
         mpc_init2 (self_val, mpfr_get_default_prec());
-        rb_raise (rb_eRangeError, "prec must be non-negative");
+        rb_raise (rb_eRangeError, "prec must be at least 2");
       }
     } else if (MPCRND_P (argv[1])) {
       rnd_mode_val = r_get_mpc_rounding_mode(argv[1]);
