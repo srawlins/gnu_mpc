@@ -9,9 +9,11 @@ end
 group :development do
   gem 'yard'
   gem 'redcarpet'
-  if RUBY_PLATFORM =~ /darwin/i
+
+  group :darwin do
     gem 'rb-fsevent', :require => false
   end
+
   gem 'guard-rspec'
   gem 'guard-shell'
 end

@@ -8,5 +8,4 @@ manual*.toc
 manual*.latex
 manual*.tex
 *~
-.yardopts
 *.gem
