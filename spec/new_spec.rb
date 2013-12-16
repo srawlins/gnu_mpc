@@ -8,6 +8,8 @@ describe MPC, '#initialize without precision or rounding args' do
     @q2 = GMP::Q(-2,3)
     @f1 = GMP::F(1.5)
     @f2 = GMP::F(-2.5)
+    @big_2_64 = 2**64
+    @z_2_64 = GMP::Z(2**64)
   end
   it 'does not raise anything when initialized with no args' do
     expect { MPC.new() }.to_not raise_error
@@ -23,6 +25,11 @@ describe MPC, '#initialize without precision or rounding args' do
 
   it 'does not raise anything when initialized with a positive Fixnum' do
     expect { MPC.new(32) }.to_not raise_error
+  end
+
+  it "can be instantiated from a Bignum" do
+    expect { MPC.new(@big_2_64) }.to_not raise_error
+    expect(MPC.new(@big_2_64)).to eq(MPC.new(@z_2_64))
   end
 
   it 'does not raise anything when initialized with 0.0' do

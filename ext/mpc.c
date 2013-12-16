@@ -374,7 +374,10 @@ void mpc_set_value(MP_COMPLEX *self_val, VALUE arg, mpc_rnd_t rnd)
     mpz_get_struct (arg, arg_val_z);
     mpc_set_z (self_val, arg_val_z, rnd);
   // TODO STRING_P
-  // TODO BIGNUM_P
+  } else if (BIGNUM_P (arg)) {
+    mpz_temp_from_bignum (arg_val_z, arg);
+    mpc_set_z (self_val, arg_val_z, rnd);
+    mpz_temp_free (arg_val_z);
   } else if (MPC_P (arg)) {
     mpc_get_struct (arg, arg_val_c);
     mpc_set (self_val, arg_val_c, rnd);
