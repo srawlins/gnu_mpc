@@ -1,6 +1,7 @@
 ext/*.o
 ext/*.bundle
 ext/*.log
+ext/*.swp
 ext/Makefile
 manual*.aux
 manual*.log

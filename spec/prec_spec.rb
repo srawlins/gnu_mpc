@@ -28,4 +28,13 @@ describe MPC, "precision arguments" do
     expect(sqr.real.prec).to eq 64
     expect(sqr.imag.prec).to eq 32
   end
+
+  it "only accepts Fixnum for precision arguments" do
+    expect { @z.sqr(prec: 1.2) }.to raise_error(TypeError)
+    expect { @z.sqr(precision: 1.2) }.to raise_error(TypeError)
+    expect { @z.sqr(real_prec: 1.2) }.to raise_error(TypeError)
+    expect { @z.sqr(real_precision: 1.2) }.to raise_error(TypeError)
+    expect { @z.sqr(imag_prec: 1.2) }.to raise_error(TypeError)
+    expect { @z.sqr(imag_precision: 1.2) }.to raise_error(TypeError)
+  end
 end

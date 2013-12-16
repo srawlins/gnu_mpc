@@ -106,19 +106,23 @@ void rb_mpc_get_hash_arguments(mpc_rnd_t *rnd_mode, mpfr_prec_t *real_prec, mpfr
   real_prec_val = rb_hash_aref (hash, precision_sym);
   if (real_prec_val == Qnil) { real_prec_val = rb_hash_aref (hash, prec_sym); }
   if (real_prec_val != Qnil) {
-    /* TODO: raise if not Fixnum */
+    if (! FIXNUM_P (real_prec_val)) rb_raise (rb_eTypeError, "real precision must be a Fixnum.");
     *real_prec = FIX2INT (real_prec_val);
     *imag_prec = FIX2INT (real_prec_val);
   } else {
-    /* TODO: raise if not Fixnum */
     real_prec_val = rb_hash_aref (hash, real_precision_sym);
     if (real_prec_val == Qnil) { real_prec_val = rb_hash_aref (hash, real_prec_sym); }
-    if (real_prec_val != Qnil) { *real_prec = FIX2INT (real_prec_val); }
+    if (real_prec_val != Qnil) {
+      if (! FIXNUM_P (real_prec_val)) rb_raise (rb_eTypeError, "real precision must be a Fixnum.");
+      *real_prec = FIX2INT (real_prec_val);
+    }
 
-    /* TODO: raise if not Fixnum */
     imag_prec_val = rb_hash_aref (hash, imag_precision_sym);
     if (imag_prec_val == Qnil) { imag_prec_val = rb_hash_aref (hash, imag_prec_sym); }
-    if (imag_prec_val != Qnil) { *imag_prec = FIX2INT (imag_prec_val); }
+    if (imag_prec_val != Qnil) {
+      if (! FIXNUM_P (imag_prec_val)) rb_raise (rb_eTypeError, "imag precision must be a Fixnum.");
+      *imag_prec = FIX2INT (imag_prec_val);
+    }
   }
 
   /* TODO: disallow any other args. Throw a fit. */
@@ -146,18 +150,17 @@ int rb_base_type_range_check(VALUE base)
 
 size_t rb_sig_figs_type_range_check(VALUE sig_figs)
 {
-  size_t sig_figs_val;
-  if (NIL_P (sig_figs)) { sig_figs_val = (size_t)(0); }
-  else {
-    if (FIXNUM_P (sig_figs))
-      if (FIX2NUM (sig_figs) >= 0)
-        sig_figs_val = (size_t)(FIX2NUM (sig_figs));
-      else
-        rb_raise (rb_eRangeError, "significant figures must be greater than or equal to 0.");
-    else
-      rb_raise (rb_eTypeError, "significant figures must be a Fixnum.");
+  if (NIL_P (sig_figs)) {
+    return (size_t)(0);
   }
-  return sig_figs_val;
+
+  if (FIXNUM_P (sig_figs))
+    if (FIX2NUM (sig_figs) >= 0)
+      return (size_t)(FIX2NUM (sig_figs));
+    else
+      rb_raise (rb_eRangeError, "significant figures must be greater than or equal to 0.");
+  else
+    rb_raise (rb_eTypeError, "significant figures must be a Fixnum.");
 }
 
 
@@ -433,8 +436,6 @@ VALUE r_mpc_prec(VALUE self)
  *   c.to_s
  *
  * Returns the decimal representation of the real part and imaginary part of _c_, as a String.
- *
- * @TODO type check, range check optional argument: rounding mode
  */
 VALUE r_mpc_to_s(int argc, VALUE *argv, VALUE self)
 {
@@ -444,15 +445,12 @@ VALUE r_mpc_to_s(int argc, VALUE *argv, VALUE self)
   int base_val;
   size_t sig_figs_val;
   mpc_rnd_t rnd_mode_val;
-  //mp_exp_t exponent;
 
   mpc_get_struct (self, self_val)
 
   rb_scan_args (argc, argv, "03", &base, &sig_figs, &rnd_mode);
   base_val = rb_base_type_range_check (base);
   sig_figs_val = rb_sig_figs_type_range_check (sig_figs);
-  //if (NIL_P (sig_figs)) { sig_figs_val = (size_t)(0); }
-  //else {                  sig_figs_val = (size_t)(FIX2NUM(sig_figs)); }
   if (NIL_P (rnd_mode)) { rnd_mode_val = r_mpc_default_rounding_mode; }
   else {                  rnd_mode_val = r_get_mpc_rounding_mode(rnd_mode); }
 
