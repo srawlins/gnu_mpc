@@ -407,7 +407,12 @@ void mpc_set_value(MP_COMPLEX *self_val, VALUE arg, mpc_rnd_t rnd)
       mpf_get_struct (arg_im, arg_val_f_im);
       mpc_set_fr_fr (self_val, arg_val_f, arg_val_f_im, rnd);
     // TODO STRING_P
-    // TODO BIGNUM_P
+    } else if (BIGNUM_P (arg_re) && BIGNUM_P (arg_im)) {
+      mpz_temp_from_bignum (arg_val_z, arg_re);
+      mpz_temp_from_bignum (arg_val_z_im, arg_im);
+      mpc_set_z_z (self_val, arg_val_z, arg_val_z_im, rnd);
+      mpz_temp_free (arg_val_z);
+      mpz_temp_free (arg_val_z_im);
     } else
       rb_raise(rb_eTypeError, "Real and imaginary values must be of the same type.");
   } else {

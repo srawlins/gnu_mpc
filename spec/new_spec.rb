@@ -9,7 +9,9 @@ describe MPC, '#initialize without precision or rounding args' do
     @f1 = GMP::F(1.5)
     @f2 = GMP::F(-2.5)
     @big_2_64 = 2**64
+    @big_2_65 = 2**65
     @z_2_64 = GMP::Z(2**64)
+    @z_2_65 = GMP::Z(2**65)
   end
   it 'does not raise anything when initialized with no args' do
     expect { MPC.new() }.to_not raise_error
@@ -71,6 +73,11 @@ describe MPC, '#initialize without precision or rounding args' do
 
   it 'does not raise anything when initialized with an Array of Fixnum\'s' do
     expect { MPC.new([-2**10, 2**11]) }.to_not raise_error
+  end
+
+  it "can be instantiated from two Bignums" do
+    expect { MPC.new([@big_2_64, @big_2_65]) }.to_not raise_error
+    expect(MPC.new([@big_2_64, @big_2_65])).to eq(MPC.new([@z_2_64, @z_2_65]))
   end
 
   it 'does not raise anything when initialized with an Array of Float\'s' do
