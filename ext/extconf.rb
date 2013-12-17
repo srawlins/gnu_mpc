@@ -37,7 +37,11 @@ unless have_macro('SIZEOF_INTPTR_T')
   check_sizeof('intptr_t')
 end
 
-$CFLAGS += ' -Wall -W -O6 -g'
+if try_compile('', '-O6')
+  $CFLAGS += ' -Wall -W -O6 -g'
+else
+  $CFLAGS += ' -Wall -W -O3 -g'
+end
 
 if not ok
   raise "Unable to build, correct above errors and rerun"

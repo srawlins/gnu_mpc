@@ -139,7 +139,7 @@ int rb_base_type_range_check(VALUE base)
   else {
     if (FIXNUM_P (base))
       if (FIX2NUM (base) >= 2 && FIX2NUM (base) <= 36)
-        base_val = FIX2NUM (base);
+        base_val = (int) FIX2NUM (base);
       else
         rb_raise (rb_eRangeError, "base must be between 2 and 36.");
     else
