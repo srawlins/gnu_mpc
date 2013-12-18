@@ -44,9 +44,9 @@ VALUE r_mpcrndsg_new(int argc, VALUE *argv, VALUE klass)
 VALUE r_mpcrnd_initialize(int argc, VALUE *argv, VALUE self)
 {
   VALUE mode, name, ieee754;
-  mode = argv[0];
-  (void)argc;
   char name_val[12];
+  (void)argc;
+  mode = argv[0];
 
   switch (FIX2INT(mode) % 16) {
   case 0:
@@ -162,8 +162,8 @@ mpc_rnd_t r_mpc_get_rounding_mode(VALUE rnd)
 
 void init_mpcrnd()
 {
-  cMPC = rb_define_class ("MPC", rb_cNumeric);
   ID new_id = rb_intern ("new");
+  cMPC = rb_define_class ("MPC", rb_cNumeric);
 
   cMPC_Rnd = rb_define_class_under (cMPC, "Rnd", rb_cObject);
 
