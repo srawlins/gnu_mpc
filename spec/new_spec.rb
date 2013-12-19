@@ -68,7 +68,7 @@ describe MPC, '#initialize without precision or rounding args' do
   end
 
   it 'does not raise anything when initialized with an Array of 0\'s' do
-    expect { MPC.new([0,0]) }.to_not raise_error
+    expect { MPC.new([0, 0]) }.to_not raise_error
   end
 
   it 'does not raise anything when initialized with an Array of Fixnum\'s' do
@@ -113,5 +113,16 @@ describe MPC, '#initialize without precision or rounding args' do
     expect { MPC.new(0, -1) }.to raise_error(RangeError)
     expect { MPC.new(0, 0) }.to raise_error(RangeError)
     expect { MPC.new(0, 1) }.to raise_error(RangeError)
+  end
+end
+
+describe MPC, '#initialize with precision arguments' do
+  it "accepts a shared precision" do
+    expect(MPC.new(7, 32).prec).to eq(32)
+  end
+
+  it "accepts individual precisions" do
+    expect(MPC.new(7, 32, 64).prec).to eq(0)
+    expect(MPC.new(7, 32, 64).prec2).to eq([32, 64])
   end
 end

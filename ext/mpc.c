@@ -238,9 +238,10 @@ mpc_rnd_t r_get_mpc_rounding_mode(VALUE rnd)
  * * Bignum
  *
  * @example
- *   MPC.new(5)  #=> 5
- *
- * @todo support #new(c, prec_r, prec_i)
+ *   MPC.new(5)                   #=> (5,0)
+ *   MPC.new(1.111)               #=> (1.111,0)
+ *   MPC.new(5, 32)               #=> (5,0) with precision 32
+ *   MPC.new([1.0, 1.0], 32, 64)  #=> (1.0,1.0) with real precision 32, imag precision 64
  */
 VALUE r_mpcsg_new(int argc, VALUE *argv, VALUE klass)
 {
@@ -331,8 +332,12 @@ VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
   // argc = 4 ==> argv[0] is value, argv[1] is prec_r, argv[2] is prec_i, argv[3] is rnd
   // TODO
 
-  if (prec == 0)
+  if (prec == 0 && prec_re == 0)
+    /* precision was not specified */
     mpc_init2 (self_val, mpfr_get_default_prec());
+  else if (prec == 0)
+    /* precision was specified in two parts */
+    mpc_init3 (self_val, prec_re, prec_im);
   else
     mpc_init2 (self_val, prec);
 
