@@ -37,4 +37,14 @@ describe MPC, "precision arguments" do
     expect { @z.sqr(imag_prec: 1.2) }.to raise_error(TypeError)
     expect { @z.sqr(imag_precision: 1.2) }.to raise_error(TypeError)
   end
+
+  it "returns precision with :prec and :prec2" do
+    sqr = @z.sqr(prec: 32)
+    expect(sqr.prec).to eq 32
+    expect(sqr.prec2).to eq [32, 32]
+
+    sqr = @z.sqr(real_prec: 64, imag_prec: 32)
+    expect(sqr.prec).to eq 0
+    expect(sqr.prec2).to eq [64, 32]
+  end
 end

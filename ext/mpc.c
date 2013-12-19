@@ -240,7 +240,6 @@ mpc_rnd_t r_get_mpc_rounding_mode(VALUE rnd)
  * @example
  *   MPC.new(5)  #=> 5
  *
- * @todo support #new(c, prec)
  * @todo support #new(c, prec_r, prec_i)
  */
 VALUE r_mpcsg_new(int argc, VALUE *argv, VALUE klass)
@@ -427,11 +426,27 @@ void mpc_set_value(MP_COMPLEX *self_val, VALUE arg, mpc_rnd_t rnd)
  * If the real and imaginary part of _c_ have the same precision, it is returned. Otherwise,
  * 0 is returned.
  */
-VALUE r_mpc_prec(VALUE self)
+VALUE r_mpc_prec(VALUE self_val)
 {
-  MP_COMPLEX *self_val;
-  mpc_get_struct (self, self_val);
-  return INT2NUM (mpc_get_prec (self_val));
+  MP_COMPLEX *self;
+  mpc_get_struct (self_val, self);
+  return INT2NUM (mpc_get_prec (self));
+}
+
+/*
+ * call-seq:
+ *   c.prec2
+ *
+ * Returns the precision of the real part and imaginary part of _c_.
+ */
+VALUE r_mpc_prec2(VALUE self_val)
+{
+  MP_COMPLEX *self;
+  mpfr_prec_t prec_re;
+  mpfr_prec_t prec_im;
+  mpc_get_struct (self_val, self);
+  mpc_get_prec2 (&prec_re, &prec_im, self);
+  return rb_assoc_new (INT2NUM (prec_re), INT2NUM (prec_im));
 }
 
 
@@ -1167,7 +1182,7 @@ void Init_mpc() {
   rb_define_singleton_method (cMPC, "new", r_mpcsg_new, -1);
   rb_define_method (cMPC, "initialize", r_mpc_initialize, -1);
   rb_define_method (cMPC, "prec", r_mpc_prec, 0);
-  // TODO rb_define_method (cMPC, "prec2", r_mpc_prec, 0);
+  rb_define_method (cMPC, "prec2", r_mpc_prec2, 0);
   // TODO rb_define_method (cMPC, "prec=", r_mpc_prec, 1);
 
   // Conversion Functions
