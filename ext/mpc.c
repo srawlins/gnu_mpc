@@ -1253,5 +1253,6 @@ void Init_mpc() {
   // Miscellaneous Functions
   // TODO rb_define_method (cMPC, "urandom", r_mpc_urandom, 1);
 
-  init_mpcrnd();
+  init_mpcrnd ();
+  init_gmprandstate_mpc ();
 }

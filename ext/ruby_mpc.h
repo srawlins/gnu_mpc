@@ -59,5 +59,6 @@ extern mpc_rnd_t r_get_mpc_rounding_mode(VALUE rnd);
 extern mpc_rnd_t r_get_default_mpc_rounding_mode();
 extern mpc_rnd_t r_mpc_get_rounding_mode(VALUE rnd);
 extern void init_mpcrnd();
+extern void init_gmprandstate_mpc();
 
 #endif /* _RUBY_MPC_H_ */

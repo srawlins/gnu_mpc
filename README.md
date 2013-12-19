@@ -52,6 +52,14 @@ MPC#acos   # inverse cosine
 MPC#atan   # inverse tangent
 ```
 
+Miscellaneous Functions
+-----------------------
+
+```ruby
+GMP::RandState#mpc_urandom  # uniformly distributed random complex number within
+                            # [0,1] x [0,1]
+```
+
 ...
 
 Each of these methods accepts optional arguments to specify the rounding mode,

@@ -4,6 +4,7 @@
 * added MPC#arg, with documentation, and tests
 * added MPC#fma, wtih documentation, and tests
 * added MPC#prec2, with tests
+* added GMP::RandState#mpc_urandom, with tests
 * MPC#real and MPC#imag now take an optional precision, for the result.
 * Bumped rspec and converting tests to just use expect().
 * Travis is good.
