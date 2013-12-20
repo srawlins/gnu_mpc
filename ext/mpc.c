@@ -245,17 +245,17 @@ mpc_rnd_t r_get_mpc_rounding_mode(VALUE rnd)
  */
 VALUE r_mpcsg_new(int argc, VALUE *argv, VALUE klass)
 {
-  MP_COMPLEX *res_val;
-  VALUE res;
+  MP_COMPLEX *res;
+  VALUE res_val;
   (void)klass;
 
   if (argc > 3)
     rb_raise (rb_eArgError, "wrong # of arguments (%d for 0, 1, 2, or 3)", argc);
 
-  mpc_make_struct (res, res_val);
-  rb_obj_call_init (res, argc, argv);
+  mpc_make_struct (res_val, res);
+  rb_obj_call_init (res_val, argc, argv);
 
-  return res;
+  return res_val;
 }
 
 VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
@@ -465,28 +465,28 @@ VALUE r_mpc_prec2(VALUE self_val)
  *
  * Returns the decimal representation of the real part and imaginary part of _c_, as a String.
  */
-VALUE r_mpc_to_s(int argc, VALUE *argv, VALUE self)
+VALUE r_mpc_to_s(int argc, VALUE *argv, VALUE self_val)
 {
-  MP_COMPLEX *self_val;
+  MP_COMPLEX *self;
   char *str;
-  VALUE base, sig_figs, rnd_mode, res;
-  int base_val;
-  size_t sig_figs_val;
-  mpc_rnd_t rnd_mode_val;
+  VALUE base_val, sig_figs_val, rnd_mode_val, res_val;
+  int base;
+  size_t sig_figs;
+  mpc_rnd_t rnd_mode;
 
-  mpc_get_struct (self, self_val)
+  mpc_get_struct (self_val, self)
 
-  rb_scan_args (argc, argv, "03", &base, &sig_figs, &rnd_mode);
-  base_val = rb_base_type_range_check (base);
-  sig_figs_val = rb_sig_figs_type_range_check (sig_figs);
-  if (NIL_P (rnd_mode)) { rnd_mode_val = r_mpc_default_rounding_mode; }
-  else {                  rnd_mode_val = r_get_mpc_rounding_mode(rnd_mode); }
+  rb_scan_args (argc, argv, "03", &base_val, &sig_figs_val, &rnd_mode_val);
+  base = rb_base_type_range_check (base_val);
+  sig_figs = rb_sig_figs_type_range_check (sig_figs_val);
+  if (NIL_P (rnd_mode_val)) { rnd_mode = r_mpc_default_rounding_mode; }
+  else {                      rnd_mode = r_get_mpc_rounding_mode (rnd_mode_val); }
 
-  str = mpc_get_str (base_val, sig_figs_val, self_val, rnd_mode_val);
-  res = rb_str_new2 (str);
+  str = mpc_get_str (base, sig_figs, self, rnd_mode);
+  res_val = rb_str_new2 (str);
 
   mpc_free_str (str);
-  return res;
+  return res_val;
 }
 
 
@@ -494,37 +494,37 @@ VALUE r_mpc_to_s(int argc, VALUE *argv, VALUE self)
  *    Comparison Functions                                           *
  *********************************************************************/
 
-int mpc_cmp_value(MP_COMPLEX *self_val, VALUE arg)
+int mpc_cmp_value(MP_COMPLEX *self, VALUE arg_val)
 {
-  MP_COMPLEX *arg_val;
+  MP_COMPLEX *arg;
   int result;
 
-  if (MPC_P (arg)) {
-    mpc_get_struct (arg,arg_val);
-    return mpc_cmp (self_val, arg_val);
+  if (MPC_P (arg_val)) {
+    mpc_get_struct (arg_val, arg);
+    return mpc_cmp (self, arg);
   } else {
-    mpc_temp_init (arg_val, mpc_get_prec (self_val));
-    mpc_set_value (arg_val, arg, r_mpc_default_rounding_mode);
-    result = mpc_cmp (self_val, arg_val);
-    mpc_temp_free (arg_val);
+    mpc_temp_init (arg, mpc_get_prec (self));
+    mpc_set_value (arg, arg_val, r_mpc_default_rounding_mode);
+    result = mpc_cmp (self, arg);
+    mpc_temp_free (arg);
     return result;
   }
 }
 
-VALUE r_mpc_eq(VALUE self, VALUE arg)
+VALUE r_mpc_eq(VALUE self_val, VALUE arg_val)
 {
-  MP_COMPLEX *self_val;
-  mpc_get_struct (self,self_val);
-  return (mpc_cmp_value (self_val, arg) == 0) ? Qtrue : Qfalse;
+  MP_COMPLEX *self;
+  mpc_get_struct (self_val, self);
+  return (mpc_cmp_value (self, arg_val) == 0) ? Qtrue : Qfalse;
 }
 
-VALUE r_mpc_cmp(VALUE self, VALUE arg)
+VALUE r_mpc_cmp(VALUE self_val, VALUE arg_val)
 {
-  MP_COMPLEX *self_val;
+  MP_COMPLEX *self;
   int res;
-  mpc_get_struct (self, self_val);
-  res = mpc_cmp_value (self_val, arg);
-  return rb_assoc_new(INT2FIX(MPC_INEX_RE(res)), INT2FIX (MPC_INEX_IM(res)));
+  mpc_get_struct (self_val, self);
+  res = mpc_cmp_value (self, arg_val);
+  return rb_assoc_new (INT2FIX (MPC_INEX_RE (res)), INT2FIX (MPC_INEX_IM (res)));
 }
 
 
@@ -1181,7 +1181,7 @@ VALUE r_mpc_fma(int argc, VALUE *argv, VALUE self_val)
 void Init_mpc() {
   cMPC = rb_define_class ("MPC", rb_cNumeric);
 
-  rb_define_const (cMPC, "MPC_VERSION",       rb_str_new2(MPC_VERSION_STRING));
+  rb_define_const (cMPC, "MPC_VERSION", rb_str_new2(MPC_VERSION_STRING));
 
   // Initialization Functions and Assignment Functions
   rb_define_singleton_method (cMPC, "new", r_mpcsg_new, -1);
