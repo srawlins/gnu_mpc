@@ -35,6 +35,18 @@ MPC#div(w)    # divide by w
 MPC#fma(w,x)  # multiple by w, then add with x
 ```
 
+Power and Logarithm Methods
+---------------------------
+
+```ruby
+MPC#sqrt      # square root
+MPC#pow(w)    # raise to the power w
+MPC#** w      # raise to the power w
+MPC#exp       # exponential
+MPC#log       # natural logarithm
+MPC#log10     # base-10 logarithm
+```
+
 Trigonometric Methods
 ---------------------
 
