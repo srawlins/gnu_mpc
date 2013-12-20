@@ -39,6 +39,7 @@ typedef __mpc_struct MP_COMPLEX;
 
 /* EXPECTED_Cxxx macros */
 #define EXPECTED_FXC "Expected GMP::F, Fixnum, or MPC"
+#define EXPECTED_XBZFC "Expected Fixnum, Bignum, GMP::Z, Float, GMP::F, or MPC"
 
 // MPC Rounding Modes
 #define mpcrnd_get_struct(ruby_var,c_var) { Data_Get_Struct(ruby_var, int, c_var); }

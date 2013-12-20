@@ -1110,39 +1110,86 @@ MPC_SINGLE_FUNCTION(log)
 MPC_SINGLE_FUNCTION(log10)
 #endif
 
-VALUE r_mpc_pow(int argc, VALUE *argv, VALUE self_val)
+void r_mpc_init_mpc_res_and_set_rnd_mode(
+    MP_COMPLEX **res, mpc_rnd_t *rnd_mode,                   /* return args */
+    int argc, VALUE *argv, MP_COMPLEX *self, const char *scan_fmt)  /* args */
 {
-  MP_COMPLEX *self, *res;
-  VALUE rnd_mode_val;
-  VALUE res_real_prec_val, res_imag_prec_val;
-  VALUE arg_val, res_val;
-
+  VALUE rnd_mode_val, res_real_prec_val, res_imag_prec_val;
   mpfr_prec_t real_prec, imag_prec;
   mpfr_prec_t res_real_prec, res_imag_prec;
-  mpc_rnd_t rnd_mode;
 
-  mpc_get_struct (self_val, self);
   real_prec = mpfr_get_prec (mpc_realref (self));
   imag_prec = mpfr_get_prec (mpc_imagref (self));
 
   if (argc > 0 && TYPE (argv[0]) == T_HASH) {
-    rb_mpc_get_hash_arguments (&rnd_mode, &real_prec, &imag_prec, argv[0]);
+    rb_mpc_get_hash_arguments (rnd_mode, &real_prec, &imag_prec, argv[0]);
     res_real_prec = real_prec;
     res_imag_prec = imag_prec;
   } else {
-    rb_scan_args (argc, argv, "13", &arg_val, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
+    if (scan_fmt[0] == '0') {
+      rb_scan_args (argc, argv, scan_fmt, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
+    } else {
+      rb_scan_args (argc, argv, scan_fmt, 0, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
+    }
 
     r_mpc_set_default_args (rnd_mode_val, res_real_prec_val, res_imag_prec_val,
-                           &rnd_mode,    &res_real_prec,    &res_imag_prec,
+                            rnd_mode,    &res_real_prec,    &res_imag_prec,
                                               real_prec,         imag_prec);
   }
 
-  mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+  mpc_init3 (*res, res_real_prec, res_imag_prec);
+}
 
-  if (FIXNUM_P (arg)) {
+VALUE r_mpc_pow_compute(MP_COMPLEX *self, VALUE arg_val, VALUE res_val, mpc_rnd_t rnd_mode);
+VALUE r_mpc_pow(int argc, VALUE *argv, VALUE self_val)
+{
+  MP_COMPLEX *self, *res;
+  mpc_rnd_t rnd_mode;
+  VALUE res_val;
+  VALUE arg_val = argv[0];
+  mpc_get_struct (self_val, self);
+  mpc_make_struct (res_val, res);
+  r_mpc_init_mpc_res_and_set_rnd_mode (&res, &rnd_mode, argc, argv, self, "13");
+
+  return r_mpc_pow_compute(self, arg_val, res_val, rnd_mode);
+}
+
+VALUE r_mpc_pow2(VALUE self_val, VALUE arg_val)
+{
+  MP_COMPLEX *self, *res;
+  mpc_rnd_t rnd_mode;
+  VALUE res_val;
+  mpc_get_struct (self_val, self);
+  mpc_make_struct (res_val, res);
+  mpc_init3 (res, mpfr_get_prec (mpc_realref (self)), mpfr_get_prec (mpc_imagref (self)));
+  rnd_mode = r_mpc_default_rounding_mode;
+
+  return r_mpc_pow_compute(self, arg_val, res_val, rnd_mode);
+}
+
+VALUE r_mpc_pow_compute(MP_COMPLEX *self, VALUE arg_val, VALUE res_val, mpc_rnd_t rnd_mode) {
+  MP_INT *arg_z;
+  MP_FLOAT *arg_f;
+  MP_COMPLEX *res;
+
+  mpc_get_struct (res_val, res);
+
+  if (FIXNUM_P (arg_val)) {
     mpc_pow_si (res, self, FIX2NUM (arg_val), rnd_mode);
+  } else if (BIGNUM_P (arg_val)) {
+    mpz_temp_from_bignum (arg_z, arg_val);
+    mpc_pow_z (res, self, arg_z, rnd_mode);
+    mpz_temp_free (arg_z);
+  } else if (GMPZ_P (arg_val)) {
+    mpz_get_struct (arg_val, arg_z);
+    mpc_pow_z (res, self, arg_z, rnd_mode);
   } else if (FLOAT_P (arg_val)) {
     mpc_pow_d (res, self, NUM2DBL (arg_val), rnd_mode);
+  } else if (GMPF_P (arg_val)) {
+    mpf_get_struct (arg_val, arg_f);
+    mpc_pow_fr (res, self, arg_f, rnd_mode);
+  } else {
+    typeerror(XBZFC);
   }
 
   return res_val;
@@ -1266,9 +1313,10 @@ void Init_mpc() {
 
   // Power Functions and Logarithm
   rb_define_method (cMPC, "sqrt", r_mpc_sqrt, -1);
-  rb_define_method (cMPC, "**", r_mpc_pow, -1);
-  rb_define_method (cMPC, "exp", r_mpc_exp, -1);
-  rb_define_method (cMPC, "log", r_mpc_log, -1);
+  rb_define_method (cMPC, "pow",  r_mpc_pow,  -1);
+  rb_define_method (cMPC, "**",   r_mpc_pow2,  1);
+  rb_define_method (cMPC, "exp",  r_mpc_exp,  -1);
+  rb_define_method (cMPC, "log",  r_mpc_log,  -1);
 #if MPC_VERSION_MAJOR > 0
   rb_define_method (cMPC, "log10", r_mpc_log10, -1);
 #endif
