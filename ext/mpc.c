@@ -1250,9 +1250,6 @@ void Init_mpc() {
   // TODO rb_define_method (cMPC, "acosh", r_mpc_acosh, -1);
   // TODO rb_define_method (cMPC, "atanh", r_mpc_atanh, -1);
 
-  // Miscellaneous Functions
-  // TODO rb_define_method (cMPC, "urandom", r_mpc_urandom, 1);
-
   init_mpcrnd ();
   init_gmprandstate_mpc ();
 }

@@ -6,9 +6,10 @@
 * added MPC#prec2, with tests
 * added GMP::RandState#mpc_urandom, with tests
 * MPC#real and MPC#imag now take an optional precision, for the result.
+* added tests for `#new` args, and fixed `#new(value, real_prec, imag_prec)` bug
 * Bumped rspec and converting tests to just use expect().
 * Travis is good.
-* For Travis, whose VMs can only reach MPC 0.9-4, we know have support for 0.9
+* For Travis, whose VMs can only reach MPC 0.9-4, we know have support for MPC 0.9
 
 ### 0.8.2
 
