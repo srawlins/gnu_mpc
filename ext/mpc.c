@@ -163,6 +163,43 @@ size_t rb_sig_figs_type_range_check(VALUE sig_figs)
     rb_raise (rb_eTypeError, "significant figures must be a Fixnum.");
 }
 
+void r_mpc_init_mpc_res_and_set_rnd_mode(
+    MP_COMPLEX **res, mpc_rnd_t *rnd_mode,                   /* return args */
+    int argc, VALUE *argv, MP_COMPLEX *self, const char *scan_fmt)  /* args */
+{
+  VALUE rnd_mode_val, res_real_prec_val, res_imag_prec_val;
+  mpfr_prec_t real_prec, imag_prec;
+  mpfr_prec_t res_real_prec, res_imag_prec;
+  int hash_idx;
+
+  real_prec = mpfr_get_prec (mpc_realref (self));
+  imag_prec = mpfr_get_prec (mpc_imagref (self));
+
+  if (scan_fmt[0] == '0') {
+    hash_idx = 0;
+  } else {
+    hash_idx = 1;
+  }
+
+  if (argc > hash_idx && TYPE (argv[hash_idx]) == T_HASH) {
+    rb_mpc_get_hash_arguments (rnd_mode, &real_prec, &imag_prec, argv[hash_idx]);
+    res_real_prec = real_prec;
+    res_imag_prec = imag_prec;
+  } else {
+    if (scan_fmt[0] == '0') {
+      rb_scan_args (argc, argv, scan_fmt, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
+    } else {
+      rb_scan_args (argc, argv, scan_fmt, 0, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
+    }
+
+    r_mpc_set_default_args (rnd_mode_val, res_real_prec_val, res_imag_prec_val,
+                            rnd_mode,    &res_real_prec,    &res_imag_prec,
+                                              real_prec,         imag_prec);
+  }
+
+  mpc_init3 (*res, res_real_prec, res_imag_prec);
+}
+
 
 /*********************************************************************
  *    Initialization Functions                                       *
@@ -727,83 +764,64 @@ VALUE r_mpc_add_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, m
   return res_val;
 }
 
-VALUE r_mpc_sub_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, mpfr_prec_t res_real_prec, mpfr_prec_t res_imag_prec);
+VALUE r_mpc_sub_compute(MP_COMPLEX *self, VALUE arg_val, VALUE res_val, mpc_rnd_t rnd_mode);
 VALUE r_mpc_sub(int argc, VALUE *argv, VALUE self_val)
 {
-  MP_COMPLEX *self;
-  VALUE rnd_mode_val;
-  VALUE  res_real_prec_val, res_imag_prec_val;
-  VALUE arg_val;
-
-  mpfr_prec_t real_prec, imag_prec;
-  mpfr_prec_t res_real_prec, res_imag_prec;
+  MP_COMPLEX *self, *res;
+  VALUE res_val;
   mpc_rnd_t rnd_mode;
+  /* TODO: test for argc >= 1 */
+  VALUE arg_val = argv[0];
 
   mpc_get_struct(self_val,self);
-  real_prec = mpfr_get_prec(mpc_realref(self));
-  imag_prec = mpfr_get_prec(mpc_imagref(self));
 
-  //if (argc > 0 && TYPE(argv[0]) == T_HASH) {
-  //  rb_mpc_get_hash_arguments (&rnd_mode, &real_prec, &imag_prec, argv[0]);
-    //res_real_prec = real_prec;
-    //res_imag_prec = imag_prec;
-  //} else {
-    rb_scan_args (argc, argv, "13", &arg_val, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
+  mpc_make_struct (res_val, res);
+  r_mpc_init_mpc_res_and_set_rnd_mode (&res, &rnd_mode, argc, argv, self, "13");
 
-    r_mpc_set_default_args (rnd_mode_val, res_real_prec_val, res_imag_prec_val,
-                           &rnd_mode,    &res_real_prec,    &res_imag_prec,
-                                              real_prec,         imag_prec);
-  //}
-
-  //return res_val;
-  return r_mpc_sub_do_the_work(self_val, arg_val, rnd_mode, res_real_prec, res_imag_prec);
+  return r_mpc_sub_compute (self, arg_val, res_val, rnd_mode);
 }
 
 VALUE r_mpc_sub2(VALUE self_val, VALUE arg_val)
 {
-  MP_COMPLEX *self;
-
+  MP_COMPLEX *self, *res;
+  VALUE res_val;
   mpfr_prec_t res_real_prec, res_imag_prec;
 
-  mpc_get_struct(self_val, self);
-  res_real_prec = mpfr_get_prec(mpc_realref(self));
-  res_imag_prec = mpfr_get_prec(mpc_imagref(self));
+  mpc_get_struct (self_val, self);
+  res_real_prec = mpfr_get_prec (mpc_realref (self));
+  res_imag_prec = mpfr_get_prec (mpc_imagref (self));
 
-  return r_mpc_sub_do_the_work(self_val, arg_val, MPC_RNDNN, res_real_prec, res_imag_prec);
+  mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
+
+  return r_mpc_sub_compute (self, arg_val, res_val, r_mpc_default_rounding_mode);
 }
 
-VALUE r_mpc_sub_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, mpfr_prec_t res_real_prec, mpfr_prec_t res_imag_prec) {
-  MP_COMPLEX *self, *res, *arg_c;
+VALUE r_mpc_sub_compute(MP_COMPLEX *self, VALUE arg_val, VALUE res_val, mpc_rnd_t rnd_mode) {
+  MP_COMPLEX *res, *arg_c;
   MP_INT *arg_z;
   MP_FLOAT *arg_f;
-  VALUE res_val;
 
-  mpc_get_struct(self_val,self);
+  mpc_get_struct(res_val, res);
 
   if (FIXNUM_P (arg_val)) {
-    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
     if (FIX2NUM (arg_val) >= 0) {
       mpc_sub_ui (res, self,  FIX2NUM (arg_val), rnd_mode);
     } else {
       mpc_add_ui (res, self, -FIX2NUM (arg_val), rnd_mode);
     }
   } else if (BIGNUM_P (arg_val)) {
-    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
     mpz_temp_from_bignum (arg_z, arg_val);
     mpc_set_z (res, arg_z, MPC_RNDNN);
     mpz_temp_free (arg_z);
     mpc_sub (res, self, res, rnd_mode);
   } else if (GMPZ_P (arg_val)) {
-    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
     mpz_get_struct (arg_val, arg_z);
     mpc_set_z (res, arg_z, MPC_RNDNN);
     mpc_sub (res, self, res, rnd_mode);
   } else if (GMPF_P (arg_val)) {
-    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
     mpf_get_struct (arg_val, arg_f);
     mpc_sub_fr (res, self, arg_f, rnd_mode);
   } else if (MPC_P (arg_val)) {
-    mpc_make_struct_init3 (res_val, res, res_real_prec, res_imag_prec);
     mpc_get_struct (arg_val, arg_c);
     mpc_sub (res, self, arg_c, rnd_mode);
   } else {
@@ -1110,42 +1128,13 @@ MPC_SINGLE_FUNCTION(log)
 MPC_SINGLE_FUNCTION(log10)
 #endif
 
-void r_mpc_init_mpc_res_and_set_rnd_mode(
-    MP_COMPLEX **res, mpc_rnd_t *rnd_mode,                   /* return args */
-    int argc, VALUE *argv, MP_COMPLEX *self, const char *scan_fmt)  /* args */
-{
-  VALUE rnd_mode_val, res_real_prec_val, res_imag_prec_val;
-  mpfr_prec_t real_prec, imag_prec;
-  mpfr_prec_t res_real_prec, res_imag_prec;
-
-  real_prec = mpfr_get_prec (mpc_realref (self));
-  imag_prec = mpfr_get_prec (mpc_imagref (self));
-
-  if (argc > 0 && TYPE (argv[0]) == T_HASH) {
-    rb_mpc_get_hash_arguments (rnd_mode, &real_prec, &imag_prec, argv[0]);
-    res_real_prec = real_prec;
-    res_imag_prec = imag_prec;
-  } else {
-    if (scan_fmt[0] == '0') {
-      rb_scan_args (argc, argv, scan_fmt, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
-    } else {
-      rb_scan_args (argc, argv, scan_fmt, 0, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
-    }
-
-    r_mpc_set_default_args (rnd_mode_val, res_real_prec_val, res_imag_prec_val,
-                            rnd_mode,    &res_real_prec,    &res_imag_prec,
-                                              real_prec,         imag_prec);
-  }
-
-  mpc_init3 (*res, res_real_prec, res_imag_prec);
-}
-
 VALUE r_mpc_pow_compute(MP_COMPLEX *self, VALUE arg_val, VALUE res_val, mpc_rnd_t rnd_mode);
 VALUE r_mpc_pow(int argc, VALUE *argv, VALUE self_val)
 {
   MP_COMPLEX *self, *res;
   mpc_rnd_t rnd_mode;
   VALUE res_val;
+  /* TODO: test for argc >= 1 */
   VALUE arg_val = argv[0];
   mpc_get_struct (self_val, self);
   mpc_make_struct (res_val, res);
