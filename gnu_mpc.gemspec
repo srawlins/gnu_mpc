@@ -1,8 +1,8 @@
 Gem::Specification.new do |s|
   s.name = "gnu_mpc"
-  s.version = "0.8.2"
+  s.version = "0.9.0"
   s.authors = ["srawlins"]
-  s.date = "2012-10-26"
+  s.date = "2013-12-23"
   s.description = "gnu_mpc - providing Ruby bindings to the MPC library."
   s.license = "Apache v2"
   s.email = ["sam.rawlins@gmail.com"]
