@@ -2,7 +2,7 @@ require File.join(File.dirname(__FILE__), 'spec_helper')
 
 # All tests adapted from MPC 1.0.1's tests/exp.dat
 describe MPC, '#exp' do
-  it 'should calculate the exponential of a pure real number' do
+  it 'calculates the exponential of a pure real number' do
     data = [
       [["0x1936dc5690c08fp-44", 53, 16], [ 0,  2], MPC.new([GMP::F( 6, 53),  GMP::F(0, 17)]), MPC::MPC_RNDNN],
       [["0x4b0556e084f3d0p-60", 53, 16], [ 0,  3], MPC.new([GMP::F(-4, 54),  GMP::F(0, 16)]), MPC::MPC_RNDZN],
@@ -23,12 +23,12 @@ describe MPC, '#exp' do
     ]
     data.each do |expected_real, expected_imag, input, rounding_mode|
       actual = input.exp(rounding_mode)
-      actual.real.should eq GMP::F.new(*expected_real)
-      actual.imag.should eq GMP::F.new(*expected_imag)
+      expect(actual.real).to eq GMP::F.new(*expected_real)
+      expect(actual.imag).to eq GMP::F.new(*expected_imag)
     end
   end
 
-  it 'should calculate the exponential of a pure imaginary number' do
+  it 'calculates the exponential of a pure imaginary number' do
     data = [
       [[ "0x1eb9b7097822f5p-53", 53, 16], ["-0x4787c62ac28b0p-52",  53, 16], MPC.new([GMP::F(0,53), GMP::F( 6, 53)]), MPC::MPC_RNDNN],
       [["-0x53aa981b6c9300p-55", 53, 16], ["-0xc1bdceeee0f57p-52",  53, 16], MPC.new([GMP::F(0,51), GMP::F( 4, 54)]), MPC::MPC_RNDZN],
@@ -49,14 +49,14 @@ describe MPC, '#exp' do
     ]
     data.each do |expected_real, expected_imag, input, rounding_mode|
       actual = input.exp(rounding_mode)
-      actual.real.should eq GMP::F.new(*expected_real)
-      actual.imag.should eq GMP::F.new(*expected_imag)
+      expect(actual.real).to eq GMP::F.new(*expected_real)
+      expect(actual.imag).to eq GMP::F.new(*expected_imag)
     end
   end
 
-  it 'should calculate the exponential of input close to zero' do
+  it 'calculates the exponential of input close to zero' do
       actual = MPC.new([GMP::F("0x1E02AE0D0F6Fp-7213521", 53, 16), GMP::F("0x5D7A2148071Fp-7213522", 53, 16)]).exp(MPC::MPC_RNDNN)
-      actual.real.should eq GMP::F(1)
-      actual.imag.should eq GMP::F("0x5D7A2148071Fp-7213522", 53, 16)
+      expect(actual.real).to eq GMP::F(1)
+      expect(actual.imag).to eq GMP::F("0x5D7A2148071Fp-7213522", 53, 16)
   end
 end

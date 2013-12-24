@@ -2,7 +2,7 @@ require File.join(File.dirname(__FILE__), 'spec_helper')
 
 # All tests adapted from MPC 1.0.1's tests/conj.dat
 describe MPC, '#conj' do
-  it 'should calculate the conjugate of a pure real number' do
+  it 'calculates the conjugate of a pure real number' do
     data = [
       [[ "0x123456789abcdep+52", 53, 16], [ 0,  2], MPC.new([GMP::F( "0x123456789abcdep+52", 53, 16), GMP::F(0, 17)]), MPC::MPC_RNDNN],
       [["-0x123456789abcdep+52", 53, 16], [ 0,  3], MPC.new([GMP::F("-0x123456789abcdep+52", 53, 16), GMP::F(0, 16)]), MPC::MPC_RNDZN],
@@ -23,12 +23,12 @@ describe MPC, '#conj' do
     ]
     data.each do |expected_real, expected_imag, input, rounding_mode|
       actual = input.conj(rounding_mode)
-      actual.real.should eq GMP::F.new(*expected_real)
-      actual.imag.should eq GMP::F.new(*expected_imag)
+      expect(actual.real).to eq GMP::F.new(*expected_real)
+      expect(actual.imag).to eq GMP::F.new(*expected_imag)
     end
   end
 
-  it 'should calculate the conjugate of a pure imaginary argument' do
+  it 'calculates the conjugate of a pure imaginary argument' do
     data = [
       [[0, 53], ["-0x123456789abcdep+52", 53, 16], MPC.new([GMP::F(0, 53), GMP::F( "0x123456789abcdep+52", 53, 16)]), MPC::MPC_RNDNN],
       [[0, 53], ["-0x123456789abcdep+52", 53, 16], MPC.new([GMP::F(0, 51), GMP::F( "0x123456789abcdep+52", 54, 16)]), MPC::MPC_RNDZN],
@@ -49,8 +49,8 @@ describe MPC, '#conj' do
     ]
     data.each do |expected_real, expected_imag, input, rounding_mode|
       actual = input.conj(rounding_mode)
-      actual.real.should eq GMP::F.new(*expected_real)
-      actual.imag.should eq GMP::F.new(*expected_imag)
+      expect(actual.real).to eq GMP::F.new(*expected_real)
+      expect(actual.imag).to eq GMP::F.new(*expected_imag)
     end
   end
 end
