@@ -19,10 +19,10 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.files  = Dir["ext/*.c"] + Dir["ext/*.h"] + ["ext/extconf.rb"]
   s.files += Dir["lib/mpc.rb"]
-
-  s.files += Dir["spec/*.rb"]
   s.files += ["README.md", "CHANGELOG", "COPYING.md"]
-  s.files += ["manual.md", "manual.pdf", "manual_template.latex"]
-  s.files += ["Makefile", "Rakefile", "Gemfile", "Guardfile"]
+  s.files += ["manual.md", "manual.pdf"]
+  s.files += ["Gemfile"]
   s.files += [".yardopts", ".rspec"]
+
+  s.test_files += Dir["spec/*.rb"]
 end
