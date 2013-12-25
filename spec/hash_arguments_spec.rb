@@ -8,10 +8,10 @@ describe MPC, "methods with optional hash arguments" do
     @z = MPC.new([GMP::F("0x7ffff0077efcbp-32", 53, 16), GMP::F("0x400008000180fp-22", 53, 16)])
   end
 
-  it "should allow #sqr to accept :rounding_mode hash argument" do
-    @z.sqr(:rounding_mode => MPC::MPC_RNDZZ).should eq @z_sqr
-    @z.sqr(:rounding => MPC::MPC_RNDZZ).should eq @z_sqr
-    @z.sqr(:round => MPC::MPC_RNDZZ).should eq @z_sqr
-    @z.sqr(:rnd => MPC::MPC_RNDZZ).should eq @z_sqr
+  it "allows #sqr to accept :rounding_mode hash argument" do
+    expect(@z.sqr(:rounding_mode => MPC::MPC_RNDZZ)).to eq @z_sqr
+    expect(@z.sqr(:rounding => MPC::MPC_RNDZZ)).to eq @z_sqr
+    expect(@z.sqr(:round => MPC::MPC_RNDZZ)).to eq @z_sqr
+    expect(@z.sqr(:rnd => MPC::MPC_RNDZZ)).to eq @z_sqr
   end
 end

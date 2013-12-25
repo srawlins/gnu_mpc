@@ -2,7 +2,7 @@ require File.join(File.dirname(__FILE__), 'spec_helper')
 
 # All tests adapted from MPC 1.0.1's tests/neg.dat
 describe MPC, '#@-' do
-  it 'should calculate the negation of a pure real argument' do
+  it 'calculates the negation of a pure real argument' do
     data = [
       [["-0x123456789abcdep+52", 53, 16], [ 0,  2], MPC.new([GMP::F( "0x123456789abcdep+52", 53, 16), GMP::F(0, 17)]), MPC::MPC_RNDNN],
       [[ "0x123456789abcdep+52", 53, 16], [ 0,  3], MPC.new([GMP::F("-0x123456789abcdep+52", 54, 16), GMP::F(0, 16)]), MPC::MPC_RNDZN],
@@ -23,8 +23,8 @@ describe MPC, '#@-' do
     ]
     data.each do |expected_real, expected_imag, input, rounding_mode|
       actual = input.neg(rounding_mode)
-      actual.real.should eq GMP::F.new(*expected_real)
-      actual.imag.should eq GMP::F.new(*expected_imag)
+      expect(actual.real).to eq GMP::F.new(*expected_real)
+      expect(actual.imag).to eq GMP::F.new(*expected_imag)
     end
   end
 end
