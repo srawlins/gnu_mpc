@@ -770,11 +770,17 @@ VALUE r_mpc_sub(int argc, VALUE *argv, VALUE self_val)
   MP_COMPLEX *self, *res;
   VALUE res_val;
   mpc_rnd_t rnd_mode;
-  /* TODO: test for argc >= 1 */
-  VALUE arg_val = argv[0];
+  VALUE arg_val;
 
-  mpc_get_struct(self_val,self);
+  if (argc == 0 || argc > 4) {
+    rb_raise (rb_eArgError, "wrong # of arguments (%d for 1, 2, 3, or 4)", argc);
+  }
 
+  arg_val = argv[0];
+
+  mpc_get_struct (self_val, self);
+
+  /* not ideal; ruby will segfault later if r_mpc_init... raises because of bad args */
   mpc_make_struct (res_val, res);
   r_mpc_init_mpc_res_and_set_rnd_mode (&res, &rnd_mode, argc, argv, self, "13");
 
@@ -852,11 +858,11 @@ VALUE r_mpc_mul(int argc, VALUE *argv, VALUE self_val)
     //res_real_prec = real_prec;
     //res_imag_prec = imag_prec;
   //} else {
-    rb_scan_args (argc, argv, "13", &arg_val, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
+  rb_scan_args (argc, argv, "13", &arg_val, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
 
-    r_mpc_set_default_args (rnd_mode_val, res_real_prec_val, res_imag_prec_val,
-                           &rnd_mode,    &res_real_prec,    &res_imag_prec,
-                                              real_prec,         imag_prec);
+  r_mpc_set_default_args (rnd_mode_val, res_real_prec_val, res_imag_prec_val,
+                         &rnd_mode,    &res_real_prec,    &res_imag_prec,
+                                            real_prec,         imag_prec);
   //}
 
   //return res_val;

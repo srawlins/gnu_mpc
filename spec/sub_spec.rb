@@ -80,4 +80,12 @@ describe MPC, '#sub with more arguments' do
     expect(actual.real).to eq GMP::F("0x1fffffffffffffffep-65", 96, 16)
     expect(actual.imag).to eq GMP::F(0)
   end
+
+  it 'raises when 0 arguments are passed' do
+    expect { MPC.new(1).sub() }.to raise_error
+  end
+
+  it 'raises when too many arguments are passed' do
+    expect { MPC.new(1).sub(1,2,3,4,5) }.to raise_error
+  end
 end
