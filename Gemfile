@@ -1,6 +1,7 @@
 source 'http://rubygems.org'
 
 gem 'gmp'
+gem 'rake'
 
 group :test do
   gem 'rspec'
