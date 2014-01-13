@@ -316,8 +316,10 @@ VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
 
   arg = argv[0];
 
-  // argc = 2 ==> argv[0] is value, argv[1] is prec
-  //           OR argv[0] is value, argv[1] is rnd
+  /*
+   * argc = 2 ==> argv[0] is value, argv[1] is prec
+   *           OR argv[0] is value, argv[1] is rnd
+   */
   if (argc >= 2) {
     if (FIXNUM_P (argv[1])) {
       if (FIX2INT (argv[1]) >= 2)
@@ -332,25 +334,27 @@ VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
       mpc_init2 (self_val, mpfr_get_default_prec());
       rb_raise (rb_eTypeError, "don't know how to interpret argument 1, a %s", rb_class2name (rb_class_of (argv[1])));
     }
-  // if no precision provided, but an mpfr_t is passed as value, use its prec
+  /* if no precision provided, but an mpfr_t is passed as value, use its prec */
   } else if (GMPF_P (arg)) {
     mpf_get_struct (arg, arg_val_f);
     prec = mpf_get_prec (arg_val_f);
-  // if no precision provided, but an mpc_t is passed as value, use its prec
+  /* if no precision provided, but an mpc_t is passed as value, use its prec */
   } else if (MPC_P (arg)) {
     mpc_get_struct (arg, arg_val_c);
     mpc_get_prec2 (&prec_re, &prec_im, arg_val_c);
   }
 
-  // argc = 3 ==> argv[0] is value, argv[1] is prec_r, argv[2] is prec_i
-  //           OR argv[0] is value, argv[1] is prec,   argv[2] is rnd
+  /*
+   * argc = 3 ==> argv[0] is value, argv[1] is prec_r, argv[2] is prec_i
+   *           OR argv[0] is value, argv[1] is prec,   argv[2] is rnd
+   */
   if (argc == 3) {
     if (MPCRND_P (argv[1])) {
       mpc_init2 (self_val, mpfr_get_default_prec());
       rb_raise (rb_eArgError, "the rounding mode should be the last argument");
     } else if (FIXNUM_P (argv[2])) {
       if (FIX2INT (argv[2]) >= 0) {
-        // argv[1] was actually prec_r and //argv[2] is prec_i
+        /* argv[1] was actually prec_r and //argv[2] is prec_i */
         prec_re = (mpfr_prec_t) prec;
         prec_im = FIX2INT (argv[2]);
         prec = 0;
@@ -366,8 +370,8 @@ VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
     }
   }
 
-  // argc = 4 ==> argv[0] is value, argv[1] is prec_r, argv[2] is prec_i, argv[3] is rnd
-  // TODO
+  /* argc = 4 ==> argv[0] is value, argv[1] is prec_r, argv[2] is prec_i, argv[3] is rnd */
+  /* TODO */
 
   if (prec == 0 && prec_re == 0)
     /* precision was not specified */
@@ -379,19 +383,19 @@ VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
     mpc_init2 (self_val, prec);
 
   if (STRING_P (argv[0])) {
-    // unfortunately, we cannot accept an explicit base, as we do in r_gmpf_initialize.
-    // #new(c, prec, base) would be indistinguishable from #new(c, prec_r, prec_i).
-    // TODO allow this behavior via something like #new_str or String#to_mpc
+    /* unfortunately, we cannot accept an explicit base, as we do in r_gmpf_initialize.
+     * #new(c, prec, base) would be indistinguishable from #new(c, prec_r, prec_i).
+     * TODO allow this behavior via something like #new_str or String#to_mpc */
     mpc_set_str (self_val, StringValuePtr(arg), 0, rnd_mode_val);
     return Qnil;
   }
 
-  //if (MPC_P(arg)) {
+  /*if (MPC_P(arg)) {
   //  mpc_get_struct (arg, arg_val_c);
   //  mpc_set (self_val, arg_val_c, rnd_mode_val);
-  //} else {
+  //} else {*/
     mpc_set_value (self_val, arg, rnd_mode_val);
-  //}
+  /*}*/
 
   return Qnil;
 }
@@ -414,7 +418,7 @@ void mpc_set_value(MP_COMPLEX *self_val, VALUE arg, mpc_rnd_t rnd)
   } else if (GMPZ_P (arg)) {
     mpz_get_struct (arg, arg_val_z);
     mpc_set_z (self_val, arg_val_z, rnd);
-  // TODO STRING_P
+  /* TODO STRING_P */
   } else if (BIGNUM_P (arg)) {
     mpz_temp_from_bignum (arg_val_z, arg);
     mpc_set_z (self_val, arg_val_z, rnd);
@@ -426,11 +430,11 @@ void mpc_set_value(MP_COMPLEX *self_val, VALUE arg, mpc_rnd_t rnd)
     mpf_get_struct (arg, arg_val_f);
     mpc_set_fr (self_val, arg_val_f, rnd);
   } else if (ARRAY_P (arg)) {
-    //if (RARRAY(arg)->len != 2)
-      //rb_raise(rb_eArgError, "Value Array must contain exactly two elements, the real value, and the imaginary value.");
+    /*if (RARRAY(arg)->len != 2) */
+      /*rb_raise(rb_eArgError, "Value Array must contain exactly two elements, the real value, and the imaginary value."); */
     arg_re = rb_ary_shift(arg);
     arg_im = rb_ary_shift(arg);
-    // TODO allow different classes for re and im args
+    /* TODO allow different classes for re and im args */
     if (FIXNUM_P (arg_re) && FIXNUM_P (arg_im)) {
       mpc_set_si_si (self_val, FIX2NUM (arg_re), FIX2NUM (arg_im), rnd);
     } else if (FLOAT_P (arg_re) && FLOAT_P (arg_im)) {
@@ -447,7 +451,7 @@ void mpc_set_value(MP_COMPLEX *self_val, VALUE arg, mpc_rnd_t rnd)
       mpf_get_struct (arg_re, arg_val_f);
       mpf_get_struct (arg_im, arg_val_f_im);
       mpc_set_fr_fr (self_val, arg_val_f, arg_val_f_im, rnd);
-    // TODO STRING_P
+    /* TODO STRING_P */
     } else if (BIGNUM_P (arg_re) && BIGNUM_P (arg_im)) {
       mpz_temp_from_bignum (arg_val_z, arg_re);
       mpz_temp_from_bignum (arg_val_z_im, arg_im);
@@ -462,6 +466,7 @@ void mpc_set_value(MP_COMPLEX *self_val, VALUE arg, mpc_rnd_t rnd)
 }
 
 /*
+ * Document-method: prec
  * call-seq:
  *   c.prec
  *
@@ -476,6 +481,7 @@ VALUE r_mpc_prec(VALUE self_val)
 }
 
 /*
+ * Document-method: prec2
  * call-seq:
  *   c.prec2
  *
@@ -497,6 +503,7 @@ VALUE r_mpc_prec2(VALUE self_val)
  *********************************************************************/
 
 /*
+ * Document-method: to_s
  * call-seq:
  *   c.to_s
  *
@@ -612,6 +619,7 @@ static VALUE r_mpc_##fname(int argc, VALUE *argv, VALUE self_val)            \
 
 
 /*
+ * Document-method: real
  * call-seq:
  *   c.real
  *   c.real(rounding_mode)
@@ -622,6 +630,7 @@ static VALUE r_mpc_##fname(int argc, VALUE *argv, VALUE self_val)            \
 DEFUN_COMPLEX2FLOAT(real, real_prec)
 
 /*
+ * Document-method: imag
  * call-seq:
  *   c.imag
  *   c.imag(rounding_mode)
@@ -632,6 +641,7 @@ DEFUN_COMPLEX2FLOAT(real, real_prec)
 DEFUN_COMPLEX2FLOAT(imag, imag_prec)
 
 /*
+ * Document-method: arg
  * call-seq:
  *   c.arg
  *   c.arg(rounding_mode)
@@ -643,6 +653,7 @@ DEFUN_COMPLEX2FLOAT(imag, imag_prec)
 DEFUN_COMPLEX2FLOAT(arg, real_prec)
 
 /*
+ * Document-method: proj
  * call-seq:
  *   c.proj
  *   c.proj(rounding_mode)
@@ -694,19 +705,19 @@ VALUE r_mpc_add(int argc, VALUE *argv, VALUE self_val)
   real_prec = mpfr_get_prec(mpc_realref(self));
   imag_prec = mpfr_get_prec(mpc_imagref(self));
 
-  //if (argc > 0 && TYPE(argv[0]) == T_HASH) {
+  /*if (argc > 0 && TYPE(argv[0]) == T_HASH) {
   //  rb_mpc_get_hash_arguments (&rnd_mode, &real_prec, &imag_prec, argv[0]);
     //res_real_prec = real_prec;
     //res_imag_prec = imag_prec;
-  //} else {
+  //} else {*/
     rb_scan_args (argc, argv, "13", &arg_val, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
 
     r_mpc_set_default_args (rnd_mode_val, res_real_prec_val, res_imag_prec_val,
                            &rnd_mode,    &res_real_prec,    &res_imag_prec,
                                               real_prec,         imag_prec);
-  //}
+  /*}*/
 
-  //return res_val;
+  /*return res_val;*/
   return r_mpc_add_do_the_work(self_val, arg_val, rnd_mode, res_real_prec, res_imag_prec);
 }
 
@@ -853,19 +864,19 @@ VALUE r_mpc_mul(int argc, VALUE *argv, VALUE self_val)
   real_prec = mpfr_get_prec(mpc_realref(self));
   imag_prec = mpfr_get_prec(mpc_imagref(self));
 
-  //if (argc > 0 && TYPE(argv[0]) == T_HASH) {
+  /*if (argc > 0 && TYPE(argv[0]) == T_HASH) {
   //  rb_mpc_get_hash_arguments (&rnd_mode, &real_prec, &imag_prec, argv[0]);
     //res_real_prec = real_prec;
     //res_imag_prec = imag_prec;
-  //} else {
+  //} else {*/
   rb_scan_args (argc, argv, "13", &arg_val, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
 
   r_mpc_set_default_args (rnd_mode_val, res_real_prec_val, res_imag_prec_val,
                          &rnd_mode,    &res_real_prec,    &res_imag_prec,
                                             real_prec,         imag_prec);
-  //}
+  /*}*/
 
-  //return res_val;
+  /*return res_val;*/
   return r_mpc_mul_do_the_work(self_val, arg_val, rnd_mode, res_real_prec, res_imag_prec);
 }
 
@@ -969,19 +980,19 @@ VALUE r_mpc_div(int argc, VALUE *argv, VALUE self_val)
   real_prec = mpfr_get_prec(mpc_realref(self));
   imag_prec = mpfr_get_prec(mpc_imagref(self));
 
-  //if (argc > 0 && TYPE(argv[0]) == T_HASH) {
+  /*if (argc > 0 && TYPE(argv[0]) == T_HASH) {
   //  rb_mpc_get_hash_arguments (&rnd_mode, &real_prec, &imag_prec, argv[0]);
     //res_real_prec = real_prec;
     //res_imag_prec = imag_prec;
-  //} else {
+  //} else {*/
     rb_scan_args (argc, argv, "13", &arg_val, &rnd_mode_val, &res_real_prec_val, &res_imag_prec_val);
 
     r_mpc_set_default_args (rnd_mode_val, res_real_prec_val, res_imag_prec_val,
                            &rnd_mode,    &res_real_prec,    &res_imag_prec,
                                               real_prec,         imag_prec);
-  //}
+  /*}*/
 
-  //return res_val;
+  /*return res_val;*/
   return r_mpc_div_do_the_work(self_val, arg_val, rnd_mode, res_real_prec, res_imag_prec);
 }
 
@@ -1043,6 +1054,7 @@ VALUE r_mpc_div_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, m
 MPC_SINGLE_FUNCTION(neg)
 
 /*
+ * Document-method: -@
  * call-seq:
  *   -z
  *
@@ -1195,24 +1207,133 @@ VALUE r_mpc_pow_compute(MP_COMPLEX *self, VALUE arg_val, VALUE res_val, mpc_rnd_
  *********************************************************************/
 
 /*
+ * Document-method: sin
  * call-seq:
  *   z.sin
  *   z.sin(rounding_mode)
+ *   z.sin(rounding_mode, precision=z.prec2[0], precision_imag=z.prec2[1])
  *
- * Returns _sin(z)_, rounded according to `rounding_mode`.
+ * Returns _sin(z)_, rounded according to `rounding_mode`. The returned MPC
+ * object has real precision `precision` and imaginary precision
+ * `precision_imag`.
  *
  */
 MPC_SINGLE_FUNCTION(sin)
+
+/*
+ * Document-method: cos
+ * call-seq:
+ *   z.cos
+ *   z.cos(rounding_mode)
+ *   z.cos(rounding_mode, precision=z.prec2[0], precision_imag=z.prec2[1])
+ *
+ * Returns _cos(z)_, rounded according to `rounding_mode`. The returned MPC
+ * object has real precision `precision` and imaginary precision
+ * `precision_imag`.
+ *
+ */
 MPC_SINGLE_FUNCTION(cos)
+
+/*
+ * Document-method: tan
+ * call-seq:
+ *   z.tan
+ *   z.tan(rounding_mode)
+ *   z.tan(rounding_mode, precision=z.prec2[0], precision_imag=z.prec2[1])
+ *
+ * Returns _tan(z)_, rounded according to `rounding_mode`. The returned MPC
+ * object has real precision `precision` and imaginary precision
+ * `precision_imag`.
+ *
+ */
 MPC_SINGLE_FUNCTION(tan)
+
+/*
+ * Document-method: sinh
+ * call-seq:
+ *   z.sinh
+ *   z.sinh(rounding_mode)
+ *   z.sinh(rounding_mode, precision=z.prec2[0], precision_imag=z.prec2[1])
+ *
+ * Returns _sinh(z)_, rounded according to `rounding_mode`. The returned MPC
+ * object has real precision `precision` and imaginary precision
+ * `precision_imag`.
+ *
+ */
 MPC_SINGLE_FUNCTION(sinh)
+
+/*
+ * Document-method: cosh
+ * call-seq:
+ *   z.cosh
+ *   z.cosh(rounding_mode)
+ *   z.cosh(rounding_mode, precision=z.prec2[0], precision_imag=z.prec2[1])
+ *
+ * Returns _cosh(z)_, rounded according to `rounding_mode`. The returned MPC
+ * object has real precision `precision` and imaginary precision
+ * `precision_imag`.
+ *
+ */
 MPC_SINGLE_FUNCTION(cosh)
+
+/*
+ * Document-method: tanh
+ * call-seq:
+ *   z.tanh
+ *   z.tanh(rounding_mode)
+ *   z.tanh(rounding_mode, precision=z.prec2[0], precision_imag=z.prec2[1])
+ *
+ * Returns _tanh(z)_, rounded according to `rounding_mode`. The returned MPC
+ * object has real precision `precision` and imaginary precision
+ * `precision_imag`.
+ *
+ */
 MPC_SINGLE_FUNCTION(tanh)
+
+/*
+ * Document-method: asin
+ * call-seq:
+ *   z.asin
+ *   z.asin(rounding_mode)
+ *   z.asin(rounding_mode, precision=z.prec2[0], precision_imag=z.prec2[1])
+ *
+ * Returns _asin(z)_, rounded according to `rounding_mode`. The returned MPC
+ * object has real precision `precision` and imaginary precision
+ * `precision_imag`.
+ *
+ */
 MPC_SINGLE_FUNCTION(asin)
+
+/*
+ * Document-method: acos
+ * call-seq:
+ *   z.acos
+ *   z.acos(rounding_mode)
+ *   z.acos(rounding_mode, precision=z.prec2[0], precision_imag=z.prec2[1])
+ *
+ * Returns _acos(z)_, rounded according to `rounding_mode`. The returned MPC
+ * object has real precision `precision` and imaginary precision
+ * `precision_imag`.
+ *
+ */
 MPC_SINGLE_FUNCTION(acos)
+
+/*
+ * Document-method: atan
+ * call-seq:
+ *   z.atan
+ *   z.atan(rounding_mode)
+ *   z.atan(rounding_mode, precision=z.prec2[0], precision_imag=z.prec2[1])
+ *
+ * Returns _atan(z)_, rounded according to `rounding_mode`. The returned MPC
+ * object has real precision `precision` and imaginary precision
+ * `precision_imag`.
+ *
+ */
 MPC_SINGLE_FUNCTION(atan)
 
 /*
+ * Document-method: fma
  * call-seq:
  *   a.fma(b, c)
  *   a.fma(b, c, rounding_mode)
@@ -1263,30 +1384,30 @@ void Init_mpc() {
 
   rb_define_const (cMPC, "MPC_VERSION", rb_str_new2(MPC_VERSION_STRING));
 
-  // Initialization Functions and Assignment Functions
+  /* Initialization Functions and Assignment Functions */
   rb_define_singleton_method (cMPC, "new", r_mpcsg_new, -1);
   rb_define_method (cMPC, "initialize", r_mpc_initialize, -1);
   rb_define_method (cMPC, "prec", r_mpc_prec, 0);
   rb_define_method (cMPC, "prec2", r_mpc_prec2, 0);
-  // TODO rb_define_method (cMPC, "prec=", r_mpc_prec, 1);
+  /* TODO rb_define_method (cMPC, "prec=", r_mpc_prec, 1); */
 
-  // Conversion Functions
-  // TODO research Ruby's Complex; see if it uses complex.h
+  /* Conversion Functions */
+  /* TODO research Ruby's Complex; see if it uses complex.h */
 
-  // String and Stream Input and Output
+  /* String and Stream Input and Output */
   rb_define_method (cMPC, "to_s", r_mpc_to_s, -1);
 
-  // Comparison Functions
+  /* Comparison Functions */
   rb_define_method(cMPC, "<=>", r_mpc_cmp, 1);
   rb_define_method(cMPC, "==",  r_mpc_eq, 1);
 
-  // Projection and Decomposing Functions
+  /* Projection and Decomposing Functions */
   rb_define_method (cMPC, "real", r_mpc_real, -1);
   rb_define_method (cMPC, "imag", r_mpc_imag, -1);
   rb_define_method (cMPC, "arg",  r_mpc_arg,  -1);
   rb_define_method (cMPC, "proj", r_mpc_proj, -1);
 
-  // Basic Arithmetic Functions
+  /* Basic Arithmetic Functions */
   rb_define_method (cMPC, "add",   r_mpc_add,   -1);
   rb_define_method (cMPC, "+",     r_mpc_add2,   1);
   rb_define_method (cMPC, "sub",   r_mpc_sub,   -1);
@@ -1303,10 +1424,10 @@ void Init_mpc() {
   rb_define_method (cMPC, "conj",  r_mpc_conj,  -1);
   rb_define_method (cMPC, "abs",   r_mpc_abs,   -1);
   rb_define_method (cMPC, "norm",  r_mpc_norm,  -1);
-  // TODO rb_define_method (cMPC, "mul_2exp", r_mpc_mul_2exp, 1);
-  // TODO rb_define_method (cMPC, "div_2exp", r_mpc_div_2exp, 1);
+  /* TODO rb_define_method (cMPC, "mul_2exp", r_mpc_mul_2exp, 1); */
+  /* TODO rb_define_method (cMPC, "div_2exp", r_mpc_div_2exp, 1); */
 
-  // Power Functions and Logarithm
+  /* Power Functions and Logarithm */
   rb_define_method (cMPC, "sqrt", r_mpc_sqrt, -1);
   rb_define_method (cMPC, "pow",  r_mpc_pow,  -1);
   rb_define_method (cMPC, "**",   r_mpc_pow2,  1);
@@ -1316,10 +1437,10 @@ void Init_mpc() {
   rb_define_method (cMPC, "log10", r_mpc_log10, -1);
 #endif
 
-  // Trigonometric Functions
+  /* Trigonometric Functions */
   rb_define_method (cMPC, "sin", r_mpc_sin, -1);
   rb_define_method (cMPC, "cos", r_mpc_cos, -1);
-  // TODO rb_define_method (cMPC, "sin_cos", r_mpc_sin_cos, -1);
+  /* TODO rb_define_method (cMPC, "sin_cos", r_mpc_sin_cos, -1); */
   rb_define_method (cMPC, "tan", r_mpc_tan, -1);
   rb_define_method (cMPC, "sinh", r_mpc_sinh, -1);
   rb_define_method (cMPC, "cosh", r_mpc_cosh, -1);
@@ -1327,9 +1448,9 @@ void Init_mpc() {
   rb_define_method (cMPC, "asin", r_mpc_asin, -1);
   rb_define_method (cMPC, "acos", r_mpc_acos, -1);
   rb_define_method (cMPC, "atan", r_mpc_atan, -1);
-  // TODO rb_define_method (cMPC, "asinh", r_mpc_asinh, -1);
-  // TODO rb_define_method (cMPC, "acosh", r_mpc_acosh, -1);
-  // TODO rb_define_method (cMPC, "atanh", r_mpc_atanh, -1);
+  /* TODO rb_define_method (cMPC, "asinh", r_mpc_asinh, -1); */
+  /* TODO rb_define_method (cMPC, "acosh", r_mpc_acosh, -1); */
+  /* TODO rb_define_method (cMPC, "atanh", r_mpc_atanh, -1); */
 
   init_mpcrnd ();
   init_gmprandstate_mpc ();
