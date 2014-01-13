@@ -10,3 +10,5 @@ manual*.latex
 manual*.tex
 *~
 *.gem
+doc
+.yardoc

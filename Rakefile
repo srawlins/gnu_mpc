@@ -1,4 +1,5 @@
 require "rspec/core/rake_task"
+require "yard"
 
 # Dependencies base directory. I have to figure out how to... not hard code this?
 DEPENDENCIES_DIR = '/usr/local'
@@ -45,6 +46,10 @@ namespace :dependencies do
   end
 end
 
+task :bad_comments do
+  sh 'grep -rn "\/\*[^ *]" ext/*.c ext/*.h'
+end
+
 def gmp_opt
   version = ENV['GMP'] || '5.1.3'
   '--with-gmp-dir='+File.join(DEPENDENCIES_DIR, "gmp-#{version}")
@@ -59,4 +64,4 @@ def mpfr_opt
   end
 end
 
-
+YARD::Rake::YardocTask.new
