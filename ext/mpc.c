@@ -1151,9 +1151,12 @@ VALUE r_mpc_pow(int argc, VALUE *argv, VALUE self_val)
 {
   MP_COMPLEX *self, *res;
   mpc_rnd_t rnd_mode;
-  VALUE res_val;
-  /* TODO: test for argc >= 1 */
-  VALUE arg_val = argv[0];
+  VALUE arg_val = 0, res_val;
+
+  if (argc == 0)
+    rb_raise (rb_eArgError, "wrong # of arguments (%d for 1, 2, 3, or 4)", argc);
+
+  arg_val = argv[0];
   mpc_get_struct (self_val, self);
   mpc_make_struct (res_val, res);
   r_mpc_init_mpc_res_and_set_rnd_mode (&res, &rnd_mode, argc, argv, self, "13");

@@ -76,4 +76,8 @@ describe MPC, '#**' do
     expect(w.real).to eq GMP::F(0.5).sqrt
     expect(w.imag).to eq GMP::F(0.5).sqrt
   end
+
+  it "raises an exception when presented with 0 or 4 arguments" do
+    expect { @w.pow() }.to raise_error(ArgumentError)
+  end
 end
