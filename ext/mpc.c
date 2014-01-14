@@ -728,6 +728,17 @@ MPC_SINGLE_FUNCTION(proj)
  * x:MPC =>      mpc_add ( z, x )
  */
 
+/*
+ * Document-method: +
+ * Document-method: add
+ * call-seq:
+ *   a + b
+ *   a.add(b)
+ *
+ * Add _a_ and _b_.
+ *
+ * @todo document more
+ */
 VALUE r_mpc_add_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, mpfr_prec_t res_real_prec, mpfr_prec_t res_imag_prec);
 VALUE r_mpc_add(int argc, VALUE *argv, VALUE self_val)
 {
@@ -814,6 +825,17 @@ VALUE r_mpc_add_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, m
   return res_val;
 }
 
+/*
+ * Document-method: -
+ * Document-method: sub
+ * call-seq:
+ *   a - b
+ *   a.sub(b)
+ *
+ * Subtract _b_ from _a_.
+ *
+ * @todo document more
+ */
 VALUE r_mpc_sub_compute(MP_COMPLEX *self, VALUE arg_val, VALUE res_val, mpc_rnd_t rnd_mode);
 VALUE r_mpc_sub(int argc, VALUE *argv, VALUE self_val)
 {
@@ -887,6 +909,17 @@ VALUE r_mpc_sub_compute(MP_COMPLEX *self, VALUE arg_val, VALUE res_val, mpc_rnd_
   return res_val;
 }
 
+/*
+ * Document-method: *
+ * Document-method: mul
+ * call-seq:
+ *   a * b
+ *   a.mul(b)
+ *
+ * Multiply _a_ and _b_.
+ *
+ * @todo document more
+ */
 VALUE r_mpc_mul_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, mpfr_prec_t res_real_prec, mpfr_prec_t res_imag_prec);
 VALUE r_mpc_mul(int argc, VALUE *argv, VALUE self_val)
 {
@@ -1003,6 +1036,17 @@ VALUE r_mpc_mul_i(int argc, VALUE *argv, VALUE self_val)
   return res_val;
 }
 
+/*
+ * Document-method: /
+ * Document-method: div
+ * call-seq:
+ *   a / b
+ *   a.div(b)
+ *
+ * Divide _a_ by _b_.
+ *
+ * @todo document more
+ */
 VALUE r_mpc_div_do_the_work(VALUE self_val, VALUE arg_val, mpc_rnd_t rnd_mode, mpfr_prec_t res_real_prec, mpfr_prec_t res_imag_prec);
 VALUE r_mpc_div(int argc, VALUE *argv, VALUE self_val)
 {
