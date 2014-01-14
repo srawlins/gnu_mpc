@@ -326,7 +326,7 @@ VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
         prec = FIX2INT (argv[1]);
       else {
         mpc_init2 (self_val, mpfr_get_default_prec());
-        rb_raise (rb_eRangeError, "prec must be at least 2");
+        rb_raise (rb_eRangeError, "precision must be at least 2");
       }
     } else if (MPCRND_P (argv[1])) {
       rnd_mode_val = r_get_mpc_rounding_mode(argv[1]);
@@ -495,6 +495,45 @@ VALUE r_mpc_prec2(VALUE self_val)
   mpc_get_struct (self_val, self);
   mpc_get_prec2 (&prec_re, &prec_im, self);
   return rb_assoc_new (INT2NUM (prec_re), INT2NUM (prec_im));
+}
+
+/*
+ * Document-method: prec=
+ * call-seq:
+ *   c.prec= precision
+ *
+ * Replace c with a new MPC instance, with the specified precision. The MPC
+ * library does not allow for changing the precision of an `mpc_t`
+ * (`mpc_set_prec` destroys the value of the `mpc_t`), so this method is just a
+ * dumb redefining of _c_ by declaring a new `mpc_t`.
+ */
+VALUE r_mpc_set_prec(VALUE self_val, VALUE prec_val)
+{
+  MP_COMPLEX *self, *other;
+  VALUE other_val;
+  unsigned long prec = 0;
+
+  mpc_get_struct (self_val, self);
+
+  if (!FIXNUM_P (prec_val))
+    typeerror(X);
+
+  if (FIX2INT (prec_val) >= 2)
+    prec = FIX2INT (prec_val);
+  else
+    rb_raise (rb_eRangeError, "precision must be at least 2");
+
+  /* I don't know why, but I get segfaults if I just mpc_init2 my
+   * MP_COMPLEX *self... WHY??? */
+  mpc_make_struct (other_val, other);
+  /* TODO: accept an optional imaginary precision */
+  mpc_init2 (other, prec);
+  /* TODO: accept an optional rounding mode */
+  mpc_set (other, self, r_mpc_default_rounding_mode);
+  mpc_set_prec (self, prec);
+  mpc_set (self, other, r_mpc_default_rounding_mode);
+
+  return prec;
 }
 
 
@@ -1440,7 +1479,7 @@ void Init_mpc() {
   rb_define_method (cMPC, "initialize", r_mpc_initialize, -1);
   rb_define_method (cMPC, "prec", r_mpc_prec, 0);
   rb_define_method (cMPC, "prec2", r_mpc_prec2, 0);
-  /* TODO rb_define_method (cMPC, "prec=", r_mpc_prec, 1); */
+  rb_define_method (cMPC, "prec=", r_mpc_set_prec, 1);
 
   /* Conversion Functions */
   /* TODO research Ruby's Complex; see if it uses complex.h */
