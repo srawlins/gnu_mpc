@@ -103,6 +103,7 @@ void rb_mpc_get_hash_arguments(mpc_rnd_t *rnd_mode, mpfr_prec_t *real_prec, mpfr
     *rnd_mode = __gmp_default_rounding_mode;
   }
 
+  /* TODO replace rb_eTypeErrors here with typeerror(X) */
   real_prec_val = rb_hash_aref (hash, precision_sym);
   if (real_prec_val == Qnil) { real_prec_val = rb_hash_aref (hash, prec_sym); }
   if (real_prec_val != Qnil) {
@@ -321,6 +322,8 @@ VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
    *           OR argv[0] is value, argv[1] is rnd
    */
   if (argc >= 2) {
+    /* TODO: replace these horrible lines of code with something akin to
+     * r_get_mpc_rounding_mode() that accepts precisions 0 and >=2 */
     if (FIXNUM_P (argv[1])) {
       if (FIX2INT (argv[1]) >= 2)
         prec = FIX2INT (argv[1]);
