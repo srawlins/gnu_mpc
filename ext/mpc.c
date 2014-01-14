@@ -625,7 +625,7 @@ static VALUE r_mpc_##fname(int argc, VALUE *argv, VALUE self_val)            \
  *   c.real(rounding_mode)
  *   c.real(rounding_mode, precision)
  *
- * Returns the real part of _c_ as a GMP_F float (an MPFR float, really).
+ * Returns the real part of _c_ as a GMP::F float (an MPFR float, really).
  */
 DEFUN_COMPLEX2FLOAT(real, real_prec)
 
@@ -636,7 +636,7 @@ DEFUN_COMPLEX2FLOAT(real, real_prec)
  *   c.imag(rounding_mode)
  *   c.imag(rounding_mode, precision)
  *
- * Returns the imaginary part of _c_ as a GMP_F float (an MPFR float, really).
+ * Returns the imaginary part of _c_ as a GMP::F float (an MPFR float, really).
  */
 DEFUN_COMPLEX2FLOAT(imag, imag_prec)
 
@@ -648,7 +648,7 @@ DEFUN_COMPLEX2FLOAT(imag, imag_prec)
  *   c.arg(rounding_mode, precision)
  *
  * Returns the argument of _c_ (with a branch cut along the negative real axis)
- * as a GMP_F float (an MPFR float, really).
+ * as a GMP::F float (an MPFR float, really).
  */
 DEFUN_COMPLEX2FLOAT(arg, real_prec)
 
@@ -659,7 +659,7 @@ DEFUN_COMPLEX2FLOAT(arg, real_prec)
  *   c.proj(rounding_mode)
  *   c.proj(rounding_mode, precision)
  *
- * Returns the projection of _c_ onto the Riemann sphere as a GMP_F float (an
+ * Returns the projection of _c_ onto the Riemann sphere as a GMP::F float (an
  * MPFR float, really).
  */
 MPC_SINGLE_FUNCTION(proj)
@@ -1084,7 +1084,7 @@ MPC_SINGLE_FUNCTION(conj)
  *   c.abs
  *   c.abs(rounding_mode)
  *
- * Returns the absolute value of _c_ as a GMP_F float (an MPFR float, really).
+ * Returns the absolute value of _c_ as a GMP::F float (an MPFR float, really).
  */
 VALUE r_mpc_abs(int argc, VALUE *argv, VALUE self)
 {
@@ -1112,7 +1112,8 @@ VALUE r_mpc_abs(int argc, VALUE *argv, VALUE self)
  *   c.norm
  *   c.norm(rounding_mode)
  *
- * Returns the norm of _c_ (i.e., the square of its absolute value), as a GMP_F float (an MPFR float, really).
+ * Returns the norm of _c_ (i.e., the square of its absolute value), as a
+ * GMP::F float (an MPFR float, really).
  */
 VALUE r_mpc_norm(int argc, VALUE *argv, VALUE self)
 {
@@ -1139,10 +1140,57 @@ VALUE r_mpc_norm(int argc, VALUE *argv, VALUE self)
  *    Power and Logarithm Functions                                  *
  *********************************************************************/
 
+/*
+ * Document-method: sqrt
+ * call-seq:
+ *   c.sqrt
+ *   c.sqrt(rounding_mode)
+ *   c.sqrt(rounding_mode, precision=c.prec2[0], precision_imag=c.prec2[1])
+ *
+ * Returns the square root of _c_ as a MPC complex, according to
+ * `rounding_mode`. The returned object has real precision `precision` and
+ * imaginary precision `precision_imag`.
+ */
 MPC_SINGLE_FUNCTION(sqrt)
+
+/*
+ * Document-method: exp
+ * call-seq:
+ *   c.exp
+ *   c.exp(rounding_mode)
+ *   c.exp(rounding_mode, precision=c.prec2[0], precision_imag=c.prec2[1])
+ *
+ * Returns the exponential of _c_ as a MPC complex, according to
+ * `rounding_mode`. The returned object has real precision `precision` and
+ * imaginary precision `precision_imag`.
+ */
 MPC_SINGLE_FUNCTION(exp)
+
+/*
+ * Document-method: log
+ * call-seq:
+ *   c.log
+ *   c.log(rounding_mode)
+ *   c.log(rounding_mode, precision=c.prec2[0], precision_imag=c.prec2[1])
+ *
+ * Returns the natural logarithm of _c_ as a MPC complex, according to
+ * `rounding_mode`. The returned object has real precision `precision` and
+ * imaginary precision `precision_imag`.
+ */
 MPC_SINGLE_FUNCTION(log)
+
 #if MPC_VERSION_MAJOR > 0
+/*
+ * Document-method: log10
+ * call-seq:
+ *   c.log10
+ *   c.log10(rounding_mode)
+ *   c.log10(rounding_mode, precision=c.prec2[0], precision_imag=c.prec2[1])
+ *
+ * Returns the logarithm, base 10, of _c_ as a MPC complex, according to
+ * `rounding_mode`. The returned object has real precision `precision` and
+ * imaginary precision `precision_imag`.
+ */
 MPC_SINGLE_FUNCTION(log10)
 #endif
 
