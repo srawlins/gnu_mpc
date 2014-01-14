@@ -1,7 +1,7 @@
 GNU MPC
 =======
 
-This gem provides Ruby bindings to the GNU MPC library.
+This gem provides Ruby bindings to the [GNU MPC](http://www.multiprecision.org/) library.
 
 Methods
 =======
@@ -9,10 +9,12 @@ Methods
 "Initialization" Methods
 ------------------------
 
+```ruby
 MPC.new(7)      # (7,0)
 MPC.new(7, 32)  # (7,0) with precision 32
 MPC#prec        # precision if real and imag precisions are the same, 0 otherwise
 MPC#prec2       # real and imaginary precisions, as a 2-element Array
+```
 
 Projection and Decomposing Methods
 ----------------------------------
@@ -101,3 +103,8 @@ z.sin(:pre_real => 64, :prec_imag => 128)  # default rounding mode; precision of
 
 Either the ordered list of arguments, or the options Hash may be passed; they
 cannot be mixed.
+
+Manual
+======
+
+There is also a PDF [manual](manual.pdf) in addition to this readme.
