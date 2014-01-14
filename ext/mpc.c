@@ -504,19 +504,17 @@ VALUE r_mpc_prec2(VALUE self_val)
  * Document-method: prec=
  * call-seq:
  *   c.prec= precision
+ *   c.set_prec(precision, rounding_mode)
  *
  * Replace c with a new MPC instance, with the specified precision. The MPC
  * library does not allow for changing the precision of an `mpc_t`
  * (`mpc_set_prec` destroys the value of the `mpc_t`), so this method is just a
  * dumb redefining of _c_ by declaring a new `mpc_t`.
  */
+void r_mpc_set_prec_compute(VALUE, unsigned long, mpc_rnd_t);
 VALUE r_mpc_set_prec(VALUE self_val, VALUE prec_val)
 {
-  MP_COMPLEX *self, *other;
-  VALUE other_val;
   unsigned long prec = 0;
-
-  mpc_get_struct (self_val, self);
 
   if (!FIXNUM_P (prec_val))
     typeerror(X);
@@ -526,17 +524,48 @@ VALUE r_mpc_set_prec(VALUE self_val, VALUE prec_val)
   else
     rb_raise (rb_eRangeError, "precision must be at least 2");
 
+  r_mpc_set_prec_compute (self_val, prec, r_mpc_default_rounding_mode);
+
+  return prec_val;
+}
+
+VALUE r_mpc_set_prec2(int argc, VALUE *argv, VALUE self_val)
+{
+  VALUE prec_val, rnd_mode_val;
+  unsigned long prec = 0;
+  mpc_rnd_t rnd_mode;
+
+  rb_scan_args (argc, argv, "11", &prec_val, &rnd_mode_val);
+
+  if (!FIXNUM_P (prec_val))
+    typeerror_as (X, "precision");
+
+  if (FIX2INT (prec_val) >= 2)
+    prec = FIX2INT (prec_val);
+  else
+    rb_raise (rb_eRangeError, "precision must be at least 2");
+
+  if (NIL_P (rnd_mode_val)) { rnd_mode = r_mpc_default_rounding_mode; }
+  else { rnd_mode = r_get_mpc_rounding_mode (rnd_mode_val); }
+
+  r_mpc_set_prec_compute (self_val, prec, rnd_mode);
+
+  return prec_val;
+}
+
+void r_mpc_set_prec_compute(VALUE self_val, unsigned long prec, mpc_rnd_t rnd_mode) {
+  MP_COMPLEX *self, *other;
+  VALUE other_val;
+  mpc_get_struct (self_val, self);
+
   /* I don't know why, but I get segfaults if I just mpc_init2 my
    * MP_COMPLEX *self... WHY??? */
   mpc_make_struct (other_val, other);
   /* TODO: accept an optional imaginary precision */
   mpc_init2 (other, prec);
-  /* TODO: accept an optional rounding mode */
-  mpc_set (other, self, r_mpc_default_rounding_mode);
+  mpc_set (other, self, rnd_mode);
   mpc_set_prec (self, prec);
-  mpc_set (self, other, r_mpc_default_rounding_mode);
-
-  return prec;
+  mpc_set (self, other, rnd_mode);
 }
 
 
@@ -1527,6 +1556,7 @@ void Init_mpc() {
   rb_define_method (cMPC, "prec", r_mpc_prec, 0);
   rb_define_method (cMPC, "prec2", r_mpc_prec2, 0);
   rb_define_method (cMPC, "prec=", r_mpc_set_prec, 1);
+  rb_define_method (cMPC, "set_prec", r_mpc_set_prec2, -1);
 
   /* Conversion Functions */
   /* TODO research Ruby's Complex; see if it uses complex.h */

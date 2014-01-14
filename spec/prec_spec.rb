@@ -21,4 +21,21 @@ describe MPC, "precision arguments" do
     expect(z.prec).to eq 4
     expect(z).to eq(1020)
   end
+
+  it "can set precision with #set_prec" do
+    z = MPC.new(2**10)
+    z.set_prec 4
+    expect(z.prec).to eq 4
+    expect(z).to eq(1020)
+
+    z = MPC.new(3**20)
+    z.set_prec(8, MPC::MPC_RNDUU)
+    expect(z.prec).to eq 8
+    expect(z).to eq(3.490e+9)
+
+    z = MPC.new(3**20)
+    z.set_prec(8, MPC::MPC_RNDDD)
+    expect(z.prec).to eq 8
+    expect(z).to eq(3.473e+9)
+  end
 end
