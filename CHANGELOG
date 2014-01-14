@@ -1,6 +1,6 @@
 ### 0.9.1
 
-* added MPC#prec=, without tests
+* added MPC#prec=, with documentation, and tests
 * fixed and added tons of rdocs... tons
 
 ### 0.9.0
